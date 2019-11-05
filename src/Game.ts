@@ -33,10 +33,10 @@ class Game {
             }
         ]
 
-        // all screens: uncomment to activate 
-        this.start_screen();
-        // this.level_screen();
-        // this.title_screen();
+        // all screens: uncomment to activate
+        this.startScreen();
+        // this.levelScreen();
+        // this.titleScreen();
 
     }
 
@@ -44,7 +44,7 @@ class Game {
     /**
      * Function to initialize the splash screen
      */
-    public start_screen() {
+    public startScreen() {
         //1. add 'Asteroids' text
         //2. add 'Press to play' text
         //3. add button with 'start' text
@@ -55,7 +55,7 @@ class Game {
     /**
      * Function to initialize the level screen
      */
-    public level_screen() {
+    public levelScreen() {
         //1. load life images
         //2. draw current score
         //3. draw random asteroids
@@ -65,9 +65,9 @@ class Game {
     //-------- Title screen methods -------------------------------------
 
     /**
-    * Function to initialize the title screen   
+    * Function to initialize the title screen
     */
-    public title_screen() {
+    public titleScreen() {
         //1. draw your score
         //2. draw all highscores
     }

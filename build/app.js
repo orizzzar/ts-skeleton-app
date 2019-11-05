@@ -21,13 +21,13 @@ class Game {
                 score: 200
             }
         ];
-        this.start_screen();
+        this.startScreen();
     }
-    start_screen() {
+    startScreen() {
     }
-    level_screen() {
+    levelScreen() {
     }
-    title_screen() {
+    titleScreen() {
     }
     randomNumber(min, max) {
         return Math.round(Math.random() * (max - min) + min);
