@@ -1,22 +1,26 @@
 class Game {
-    //global attr for canvas
-    //readonly attributes must be initialized in the constructor
+    // Global attributes for canvas
+    // Readonly attributes are read-only. They can only be initialized in the constructor
     private readonly canvas: any; // find the right type
     private readonly ctx: any; // find the right type
 
-    //some global player attributes
-    private readonly player: string = "Player1";
-    private readonly score: number = 400;
-    private readonly lives: number = 3;
-    private readonly highscores: Array<any>; //TODO: do not use 'any': write an interface!
+    // Some global player attributes
+    private readonly player: string;
+    private readonly score: number;
+    private readonly lives: number;
+    private readonly highscores: Array<any>; // TODO: do not use 'any': write an interface!
 
     public constructor(canvasId: HTMLCanvasElement) {
-        //construct all canvas
+        // Construct all of the canvas
         this.canvas = canvasId;
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-        //set the context of the canvas
+        // Set the context of the canvas
         this.ctx = this.canvas.getContext('2d');
+
+        this.player = "Player one";
+        this.score = 400;
+        this.lives = 3;
 
         this.highscores = [
             {
@@ -33,7 +37,7 @@ class Game {
             }
         ]
 
-        // all screens: uncomment to activate
+        // All screens: uncomment to activate
         this.startScreen();
         // this.levelScreen();
         // this.titleScreen();
@@ -42,7 +46,7 @@ class Game {
 
     //-------- Splash screen methods ------------------------------------
     /**
-     * Function to initialize the splash screen
+     * Method to initialize the splash screen
      */
     public startScreen() {
         //1. add 'Asteroids' text
@@ -53,7 +57,7 @@ class Game {
 
     //-------- level screen methods -------------------------------------
     /**
-     * Function to initialize the level screen
+     * Method to initialize the level screen
      */
     public levelScreen() {
         //1. load life images
@@ -65,14 +69,14 @@ class Game {
     //-------- Title screen methods -------------------------------------
 
     /**
-    * Function to initialize the title screen
+    * Method to initialize the title screen
     */
     public titleScreen() {
         //1. draw your score
         //2. draw all highscores
     }
 
-    //-------Generic canvas functions ----------------------------------
+    //-------Generic canvas methods ----------------------------------
 
     /**
     * Renders a random number between min and max
@@ -88,5 +92,6 @@ class Game {
 let init = function () {
     const Asteroids = new Game(<HTMLCanvasElement>document.getElementById('canvas'));
 };
-//add loadlistener for custom font types
+
+// Add EventListener to load the game whenever the browser is ready
 window.addEventListener('load', init);
