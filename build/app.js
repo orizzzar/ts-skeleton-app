@@ -24,6 +24,23 @@ class Game {
         this.startScreen();
     }
     startScreen() {
+        this.ctx.font = "140px Minecraft";
+        this.ctx.fillStyle = "white";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("Asteroids", this.canvas.width / 2, 150);
+        this.ctx.font = "40px Minecraft";
+        this.ctx.fillText("PRESS PLAY TO START", this.canvas.width / 2, this.canvas.height / 2 - 20);
+        this.loadImage("./assets/images/SpaceShooterRedux/PNG/UI/buttonBlue.png", this.writeStartButton);
+        this.loadImage("./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png", this.writeAsteroidImage);
+    }
+    writeStartButton(img) {
+        this.ctx.drawImage(img, this.canvas.width / 2 - 111, this.canvas.height / 2 + 219);
+        this.ctx.font = "20px Minecraft";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText("Play", this.canvas.width / 2, this.canvas.height / 2 + 245);
+    }
+    writeAsteroidImage(img) {
+        this.ctx.drawImage(img, this.canvas.width / 2 - 50, this.canvas.height / 2 + 40);
     }
     levelScreen() {
     }

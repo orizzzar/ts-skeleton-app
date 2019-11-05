@@ -50,9 +50,29 @@ class Game {
      */
     public startScreen() {
         //1. add 'Asteroids' text
+        this.ctx.font = "140px Minecraft";
+        this.ctx.fillStyle = "white";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("Asteroids", this.canvas.width / 2, 150);
+
         //2. add 'Press to play' text
+        this.ctx.font = "40px Minecraft";
+        this.ctx.fillText("PRESS PLAY TO START", this.canvas.width / 2, this.canvas.height / 2 - 20);
         //3. add button with 'start' text
+        this.loadImage("./assets/images/SpaceShooterRedux/PNG/UI/buttonBlue.png", this.writeStartButton);
         //4. add Asteroid image
+        this.loadImage("./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png", this.writeAsteroidImage);
+    }
+
+    private writeStartButton(img: HTMLImageElement) {
+        this.ctx.drawImage(img, this.canvas.width / 2 - 111, this.canvas.height / 2 + 219);
+        this.ctx.font = "20px Minecraft";
+        this.ctx.fillStyle = "black";
+        this.ctx.fillText("Play", this.canvas.width / 2, this.canvas.height / 2 + 245);
+    }
+
+    private writeAsteroidImage(img: HTMLImageElement) {
+        this.ctx.drawImage(img, this.canvas.width / 2 - 50, this.canvas.height / 2 + 40);   
     }
 
     //-------- level screen methods -------------------------------------
