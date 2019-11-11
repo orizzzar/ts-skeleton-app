@@ -1,8 +1,8 @@
 class Game {
     // Global attributes for canvas
     // Readonly attributes are read-only. They can only be initialized in the constructor
-    private readonly canvas: any; // find the right type
-    private readonly ctx: any; // find the right type
+    private readonly canvas: HTMLCanvasElement; 
+    private readonly ctx: CanvasRenderingContext2D;
 
     // Some global player attributes
     private readonly player: string;
@@ -38,9 +38,9 @@ class Game {
         ]
 
         // All screens: uncomment to activate
-        this.startScreen();
-        // this.levelScreen();
-        // this.titleScreen();
+        //this.startScreen();
+        //this.levelScreen();
+        this.titleScreen();
 
     }
 
@@ -50,29 +50,44 @@ class Game {
      */
     public startScreen() {
         //1. add 'Asteroids' text
-        this.ctx.font = "140px Minecraft";
-        this.ctx.fillStyle = "white";
-        this.ctx.textAlign = "center";
-        this.ctx.fillText("Asteroids", this.canvas.width / 2, 150);
+        this.writeTextToCanvas("Asteroids", 140, this.canvas.width / 2, 150);
 
         //2. add 'Press to play' text
-        this.ctx.font = "40px Minecraft";
-        this.ctx.fillText("PRESS PLAY TO START", this.canvas.width / 2, this.canvas.height / 2 - 20);
+        this.writeTextToCanvas("PRESS PLAY TO START", 40, this.canvas.width / 2, this.canvas.height / 2 -20)
+
         //3. add button with 'start' text
-        this.loadImage("./assets/images/SpaceShooterRedux/PNG/UI/buttonBlue.png", this.writeStartButton);
+        const asteroidFileName = "./assets/images/SpaceShooterRedux/PNG/UI/buttonBlue.png";
+        this.loadImage(asteroidFileName, this.writeStartButtonToStartScreen);
         //4. add Asteroid image
-        this.loadImage("./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png", this.writeAsteroidImage);
+        const startButtonFileName = "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png";
+        this.loadImage(startButtonFileName, this.writeAsteroidImageToStartScreen);
     }
 
-    private writeStartButton(img: HTMLImageElement) {
-        this.ctx.drawImage(img, this.canvas.width / 2 - 111, this.canvas.height / 2 + 219);
-        this.ctx.font = "20px Minecraft";
-        this.ctx.fillStyle = "black";
-        this.ctx.fillText("Play", this.canvas.width / 2, this.canvas.height / 2 + 245);
+    /**
+     * Writes the loaded asteroids image pixels to the start screen
+     * 
+     * @param img the loaded image object
+     */
+    private writeAsteroidImageToStartScreen(img: HTMLImageElement) {
+        // Target position: center of image must be the center of the screen
+        const x = this.canvas.width / 2 - img.width / 2;
+        const y = this.canvas.height / 2 + img.height / 2;
+
+        this.ctx.drawImage(img, x, y);
     }
 
-    private writeAsteroidImage(img: HTMLImageElement) {
-        this.ctx.drawImage(img, this.canvas.width / 2 - 50, this.canvas.height / 2 + 40);   
+    /**
+     * Writes the loaded start button image to the start screen and writes a text on top of it
+     * 
+     * @param img the loaded image object
+     */
+    private writeStartButtonToStartScreen(img: HTMLImageElement) {
+        const x = this.canvas.width / 2;
+        const y = this.canvas.height / 2 + 219; // 219 is a nice spot for the button
+
+        this.ctx.drawImage(img, x  - img.width / 2, y);
+
+        this.writeTextToCanvas("Play", 20, x, y + 26, 'center', 'black');
     }
 
     //-------- level screen methods -------------------------------------
@@ -81,9 +96,61 @@ class Game {
      */
     public levelScreen() {
         //1. load life images
+        const lifeImageFileName = "./assets/images/SpaceShooterRedux/PNG/UI/playerLife1_blue.png";
+        this.loadImage(lifeImageFileName, this.writeLifeImagesToLevelScreen);
+
         //2. draw current score
+        this.writeTextToCanvas(`Your score: ${this.score}`, 20, this.canvas.width - 100, 30, 'right');
+
         //3. draw random asteroids
+        const asteroids: Array<string> = [
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big3.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big4.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_med1.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_med3.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small2.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny1.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny2.png",
+        ];
+
+        const maxAsteroidsOnScreen: number = 5;
+
+        for (let i = 0; i < maxAsteroidsOnScreen; i++) {
+            const index = this.randomNumber(0, asteroids.length);
+
+            this.loadImage(asteroids[index], this.writeAsteroidImageToRandomLocationOnLevelScreen);
+        }
+
         //4. draw player spaceship
+        const playerSpaceShipFileName = "./assets/images/SpaceShooterRedux/PNG/playerShip1_blue.png";
+        this.loadImage(playerSpaceShipFileName, this.writePlayerShipToLevelScreen);
+    }
+
+    private writeLifeImagesToLevelScreen(img: HTMLImageElement) {
+        let x = 10;
+        const y = img.height -10;
+        // Start a loop for each life in lives
+        for (let life=0; life<this.lives; life++) {
+            this.ctx.drawImage(img, x, y);
+            // Increase the x-coordinate for the next image to draw
+            x += img.width + 10; 
+        }
+    }
+
+    private writeAsteroidImageToRandomLocationOnLevelScreen(img: HTMLImageElement) {
+        const x = this.randomNumber(0, this.canvas.width - img.width);
+        const y = this.randomNumber(0, this.canvas.height - img.height);
+        this.ctx.drawImage(img, x, y);
+    }
+
+    private writePlayerShipToLevelScreen(img: HTMLImageElement) {
+        // Target position: center of image must be the center of the screen
+        const x = this.canvas.width / 2 - img.width / 2;
+        const y = this.canvas.height / 2 - img.height / 2;
+        this.ctx.drawImage(img, x, y);
     }
 
     //-------- Title screen methods -------------------------------------
@@ -92,11 +159,48 @@ class Game {
     * Method to initialize the title screen
     */
     public titleScreen() {
+        const x = this.canvas.width / 2;
+        let y = this.canvas.height / 2;
+
         //1. draw your score
+        this.writeTextToCanvas(`${this.player} score is ${this.score}`, 80, x, y - 100);
+
         //2. draw all highscores
+        this.writeTextToCanvas("HIGHSCORES", 40, x, y);
+
+        for (let i=0; i<this.highscores.length; i++) {
+            y += 40;
+            const text = `${i + 1}: ${this.highscores[i].playerName} - ${this.highscores[i].score}`;
+
+            this.writeTextToCanvas(text, 20, x, y);
+        }
     }
 
     //-------Generic canvas methods ----------------------------------
+
+    /**
+     * Writes text to the canvas
+     * @param {string} text - Text to write
+     * @param {number} fontSize - Font size in pixels
+     * @param {number} xCoordinate - Horizontal coordinate in pixels
+     * @param {number} yCoordinate - Vertical coordinate in pixels
+     * @param {string} alignment - Where to align the text
+     * @param {string} color - The color of the text
+     */
+    public writeTextToCanvas(
+        text: string,
+        fontSize: number = 20,
+        xCoordinate: number,
+        yCoordinate: number,
+        alignment: CanvasTextAlign = "center",
+        color: string = "white"
+    ) {
+        this.ctx.font = `${fontSize}px Minecraft`;
+        this.ctx.fillStyle = color;
+        this.ctx.textAlign = alignment;
+        this.ctx.fillText(text, xCoordinate, yCoordinate);
+    }
+
 
     /**
      * Loads an image file into the DOM and writes it to the canvas. After the

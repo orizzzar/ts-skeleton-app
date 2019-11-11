@@ -21,30 +21,85 @@ class Game {
                 score: 200
             }
         ];
-        this.startScreen();
+        this.titleScreen();
     }
     startScreen() {
-        this.ctx.font = "140px Minecraft";
-        this.ctx.fillStyle = "white";
-        this.ctx.textAlign = "center";
-        this.ctx.fillText("Asteroids", this.canvas.width / 2, 150);
-        this.ctx.font = "40px Minecraft";
-        this.ctx.fillText("PRESS PLAY TO START", this.canvas.width / 2, this.canvas.height / 2 - 20);
-        this.loadImage("./assets/images/SpaceShooterRedux/PNG/UI/buttonBlue.png", this.writeStartButton);
-        this.loadImage("./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png", this.writeAsteroidImage);
+        this.writeTextToCanvas("Asteroids", 140, this.canvas.width / 2, 150);
+        this.writeTextToCanvas("PRESS PLAY TO START", 40, this.canvas.width / 2, this.canvas.height / 2 - 20);
+        const asteroidFileName = "./assets/images/SpaceShooterRedux/PNG/UI/buttonBlue.png";
+        this.loadImage(asteroidFileName, this.writeStartButtonToStartScreen);
+        const startButtonFileName = "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png";
+        this.loadImage(startButtonFileName, this.writeAsteroidImageToStartScreen);
     }
-    writeStartButton(img) {
-        this.ctx.drawImage(img, this.canvas.width / 2 - 111, this.canvas.height / 2 + 219);
-        this.ctx.font = "20px Minecraft";
-        this.ctx.fillStyle = "black";
-        this.ctx.fillText("Play", this.canvas.width / 2, this.canvas.height / 2 + 245);
+    writeAsteroidImageToStartScreen(img) {
+        const x = this.canvas.width / 2 - img.width / 2;
+        const y = this.canvas.height / 2 + img.height / 2;
+        this.ctx.drawImage(img, x, y);
     }
-    writeAsteroidImage(img) {
-        this.ctx.drawImage(img, this.canvas.width / 2 - 50, this.canvas.height / 2 + 40);
+    writeStartButtonToStartScreen(img) {
+        const x = this.canvas.width / 2;
+        const y = this.canvas.height / 2 + 219;
+        this.ctx.drawImage(img, x - img.width / 2, y);
+        this.writeTextToCanvas("Play", 20, x, y + 26, 'center', 'black');
     }
     levelScreen() {
+        const lifeImageFileName = "./assets/images/SpaceShooterRedux/PNG/UI/playerLife1_blue.png";
+        this.loadImage(lifeImageFileName, this.writeLifeImagesToLevelScreen);
+        this.writeTextToCanvas(`Your score: ${this.score}`, 20, this.canvas.width - 100, 30, 'right');
+        const asteroids = [
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big3.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big4.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_med1.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_med3.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small2.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny1.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny2.png",
+        ];
+        const maxAsteroidsOnScreen = 5;
+        for (let i = 0; i < maxAsteroidsOnScreen; i++) {
+            const index = this.randomNumber(0, asteroids.length);
+            this.loadImage(asteroids[index], this.writeAsteroidImageToRandomLocationOnLevelScreen);
+        }
+        const playerSpaceShipFileName = "./assets/images/SpaceShooterRedux/PNG/playerShip1_blue.png";
+        this.loadImage(playerSpaceShipFileName, this.writePlayerShipToLevelScreen);
+    }
+    writeLifeImagesToLevelScreen(img) {
+        let x = 10;
+        const y = img.height - 10;
+        for (let life = 0; life < this.lives; life++) {
+            this.ctx.drawImage(img, x, y);
+            x += img.width + 10;
+        }
+    }
+    writeAsteroidImageToRandomLocationOnLevelScreen(img) {
+        const x = this.randomNumber(0, this.canvas.width - img.width);
+        const y = this.randomNumber(0, this.canvas.height - img.height);
+        this.ctx.drawImage(img, x, y);
+    }
+    writePlayerShipToLevelScreen(img) {
+        const x = this.canvas.width / 2 - img.width / 2;
+        const y = this.canvas.height / 2 - img.height / 2;
+        this.ctx.drawImage(img, x, y);
     }
     titleScreen() {
+        const x = this.canvas.width / 2;
+        let y = this.canvas.height / 2;
+        this.writeTextToCanvas(`${this.player} score is ${this.score}`, 80, x, y - 100);
+        this.writeTextToCanvas("HIGHSCORES", 40, x, y);
+        for (let i = 0; i < this.highscores.length; i++) {
+            y += 40;
+            const text = `${i + 1}: ${this.highscores[i].playerName} - ${this.highscores[i].score}`;
+            this.writeTextToCanvas(text, 20, x, y);
+        }
+    }
+    writeTextToCanvas(text, fontSize = 20, xCoordinate, yCoordinate, alignment = "center", color = "white") {
+        this.ctx.font = `${fontSize}px Minecraft`;
+        this.ctx.fillStyle = color;
+        this.ctx.textAlign = alignment;
+        this.ctx.fillText(text, xCoordinate, yCoordinate);
     }
     loadImage(source, callback) {
         let imageElement = new Image();
