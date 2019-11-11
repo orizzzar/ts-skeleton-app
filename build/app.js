@@ -21,7 +21,7 @@ class Game {
                 score: 200
             }
         ];
-        this.titleScreen();
+        this.startScreen();
     }
     startScreen() {
         this.writeTextToCanvas("Asteroids", 140, this.canvas.width / 2, 150);

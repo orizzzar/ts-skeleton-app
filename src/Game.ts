@@ -38,9 +38,9 @@ class Game {
         ]
 
         // All screens: uncomment to activate
-        //this.startScreen();
-        //this.levelScreen();
-        this.titleScreen();
+        this.startScreen();
+        // this.levelScreen();
+        // this.titleScreen();
 
     }
 
@@ -66,7 +66,7 @@ class Game {
     /**
      * Writes the loaded asteroids image pixels to the start screen
      * 
-     * @param img the loaded image object
+     * @param {HTMLImageElement} img the loaded image object
      */
     private writeAsteroidImageToStartScreen(img: HTMLImageElement) {
         // Target position: center of image must be the center of the screen
@@ -79,7 +79,7 @@ class Game {
     /**
      * Writes the loaded start button image to the start screen and writes a text on top of it
      * 
-     * @param img the loaded image object
+     * @param {HTMLImageElement} img the loaded image object
      */
     private writeStartButtonToStartScreen(img: HTMLImageElement) {
         const x = this.canvas.width / 2;
@@ -120,7 +120,7 @@ class Game {
 
         for (let i = 0; i < maxAsteroidsOnScreen; i++) {
             const index = this.randomNumber(0, asteroids.length);
-
+            // we use the random number to select a file name from the array
             this.loadImage(asteroids[index], this.writeAsteroidImageToRandomLocationOnLevelScreen);
         }
 
@@ -129,23 +129,41 @@ class Game {
         this.loadImage(playerSpaceShipFileName, this.writePlayerShipToLevelScreen);
     }
 
+    /**
+     * Uses the loaded life image to remaining lives of the player on the rop 
+     * left of the screen.
+     * 
+     * @param {HTMLImageElement} img the loaded image object
+     */
     private writeLifeImagesToLevelScreen(img: HTMLImageElement) {
         let x = 10;
         const y = img.height -10;
         // Start a loop for each life in lives
         for (let life=0; life<this.lives; life++) {
+            // Draw the image at the curren x and y coordinates
             this.ctx.drawImage(img, x, y);
             // Increase the x-coordinate for the next image to draw
             x += img.width + 10; 
         }
     }
 
+
+    /**
+     * Writes a loaded asteroid image at a random location on the screen.
+     * 
+     * @param {HTMLImageElement} img the loaded image object
+     */
     private writeAsteroidImageToRandomLocationOnLevelScreen(img: HTMLImageElement) {
         const x = this.randomNumber(0, this.canvas.width - img.width);
         const y = this.randomNumber(0, this.canvas.height - img.height);
         this.ctx.drawImage(img, x, y);
     }
 
+    /**
+     * Writes the loaded Player Ship image to the center of the screen
+     * 
+     * @param {HTMLImageElement} img the loaded image object
+     */
     private writePlayerShipToLevelScreen(img: HTMLImageElement) {
         // Target position: center of image must be the center of the screen
         const x = this.canvas.width / 2 - img.width / 2;
@@ -171,7 +189,6 @@ class Game {
         for (let i=0; i<this.highscores.length; i++) {
             y += 40;
             const text = `${i + 1}: ${this.highscores[i].playerName} - ${this.highscores[i].score}`;
-
             this.writeTextToCanvas(text, 20, x, y);
         }
     }
