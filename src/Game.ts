@@ -10,9 +10,9 @@ class Game {
     private readonly lives: number;
     private readonly highscores: Array<any>; // TODO: do not use 'any': write an interface!
 
-    public constructor(canvasId: HTMLCanvasElement) {
+    public constructor(canvas: HTMLCanvasElement) {
         // Construct all of the canvas
-        this.canvas = canvasId;
+        this.canvas = canvas;
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         // Set the context of the canvas
