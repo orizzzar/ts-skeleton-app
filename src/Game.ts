@@ -9,6 +9,52 @@ class Game {
     private readonly score: number;
     private readonly lives: number;
     private readonly highscores: Array<any>; // TODO: do not use 'any': write an interface!
+    private angle: number = 0;
+
+    private repo : ImageRepository;
+
+    private readonly images: Array<string> = [
+        "PNG/UI/buttonBlue.png",
+        "PNG/UI/playerLife1_blue.png",
+        "PNG/playerShip1_blue.png",
+        "PNG/Meteors/meteorBrown_big1.png",
+        "PNG/Meteors/meteorBrown_big2.png",
+        "PNG/Meteors/meteorBrown_big3.png",
+        "PNG/Meteors/meteorBrown_big4.png",
+        "PNG/Meteors/meteorBrown_med1.png",
+        "PNG/Meteors/meteorBrown_med3.png",
+        "PNG/Meteors/meteorBrown_small1.png",
+        "PNG/Meteors/meteorBrown_small2.png",
+        "PNG/Meteors/meteorBrown_tiny1.png",
+        "PNG/Meteors/meteorBrown_tiny2.png",
+    ];
+
+    private readonly asteroid_names : string[] = [
+        "PNG.Meteors.meteorBrown_big1",
+        "PNG.Meteors.meteorBrown_big2",
+        "PNG.Meteors.meteorBrown_big3",
+        "PNG.Meteors.meteorBrown_big4",
+        "PNG.Meteors.meteorBrown_med1",
+        "PNG.Meteors.meteorBrown_med3",
+        "PNG.Meteors.meteorBrown_small1",
+        "PNG.Meteors.meteorBrown_small2",
+        "PNG.Meteors.meteorBrown_tiny1",
+        "PNG.Meteors.meteorBrown_tiny2",
+    ];
+
+    private asteroids : string[] = [];
+    private asteroid_x : number[] = [];
+    private asteroid_y : number[] = [];
+    
+    private static readonly LOAD_SCREEN = 0;
+    private static readonly START_SCREEN = 1;
+    private static readonly LEVEL_SCREEN = 2;
+    private static readonly TITLE_SCREEN = 3;
+
+    private currentScreen: number = Game.LOAD_SCREEN;
+
+    private frameCounter : number = 0;
+    private keyListener : KeyListener = new KeyListener();
 
     public constructor(canvasId: HTMLCanvasElement) {
         // Construct all of the canvas
@@ -37,11 +83,54 @@ class Game {
             }
         ]
 
-        // All screens: uncomment to activate
-        this.startScreen();
-        // this.levelScreen();
-        // this.titleScreen();
+        const maxAsteroidsOnScreen: number = 5;
 
+        for (let i = 0; i < maxAsteroidsOnScreen; i++) {
+            const index = this.randomNumber(0, this.asteroid_names.length-1);
+            const x = this.randomNumber(0, this.canvas.width - 20);
+            const y = this.randomNumber(0, this.canvas.height - 20);
+            this.asteroids[i] = this.asteroid_names[index];
+            this.asteroid_x[i] = x;
+            this.asteroid_y[i] = y;
+        }
+        console.log(this.asteroid_x);
+        console.log(this.asteroid_y);
+        console.log(this.asteroids);
+        this.repo = new ImageRepository("./assets/images/SpaceShooterRedux", this.images);
+        this.startAnimation();
+    }
+
+    public loop() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        switch (this.currentScreen) {
+            case Game.LOAD_SCREEN :
+                this.loadscreen();
+                break;
+            case Game.START_SCREEN : 
+                this.startScreen();
+                break;
+            case Game.LEVEL_SCREEN : 
+                this.levelScreen();
+                break;
+            case Game.TITLE_SCREEN :
+                this.titleScreen();
+                break; 
+        } 
+    }
+
+    //-------- Load screen methods ------------------------------------
+    /**
+     * Method to initialize the load screen
+     */
+    private loadscreen() {
+        //1. add 'Loading...' text
+        this.writeTextToCanvas("Loading...", 80, this.canvas.width / 2, this.canvas.height / 2);
+
+        // See if the repo is fully loaded to progress to the start screen
+        // Minimum time of approx 2 seconds (on 60fps)
+        if (!this.repo.isLoading() && this.frameCounter > 60 * 1) {
+            this.currentScreen = Game.START_SCREEN;
+        }
     }
 
     //-------- Splash screen methods ------------------------------------
@@ -49,45 +138,27 @@ class Game {
      * Method to initialize the splash screen
      */
     public startScreen() {
+        let centerX = this.canvas.width / 2;
+        let centerY = this.canvas.height / 2;
+
         //1. add 'Asteroids' text
-        this.writeTextToCanvas("Asteroids", 140, this.canvas.width / 2, 150);
+        this.writeTextToCanvas("Asteroids", 140, centerX, 150);
 
         //2. add 'Press to play' text
-        this.writeTextToCanvas("PRESS PLAY TO START", 40, this.canvas.width / 2, this.canvas.height / 2 -20)
+        this.writeTextToCanvas("PRESS PLAY OR HIT 'S' TO START", 40, centerX, centerY - 135);
 
         //3. add button with 'start' text
-        const asteroidFileName = "./assets/images/SpaceShooterRedux/PNG/UI/buttonBlue.png";
-        this.loadImage(asteroidFileName, this.writeStartButtonToStartScreen);
+        this.drawImage("PNG.UI.buttonBlue", centerX, centerY + 220);
+        this.writeTextToCanvas("Play", 20, centerX, centerY + 229, 'center', 'black');
+
         //4. add Asteroid image
-        const startButtonFileName = "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png";
-        this.loadImage(startButtonFileName, this.writeAsteroidImageToStartScreen);
-    }
+        const angle = this.frameCounter * Math.PI / 180;
+        this.drawImage("PNG.Meteors.meteorBrown_big1", centerX, centerY + 60, angle);
 
-    /**
-     * Writes the loaded asteroids image pixels to the start screen
-     * 
-     * @param {HTMLImageElement} img the loaded image object
-     */
-    private writeAsteroidImageToStartScreen(img: HTMLImageElement) {
-        // Target position: center of image must be the center of the screen
-        const x = this.canvas.width / 2 - img.width / 2;
-        const y = this.canvas.height / 2 + img.height / 2;
-
-        this.ctx.drawImage(img, x, y);
-    }
-
-    /**
-     * Writes the loaded start button image to the start screen and writes a text on top of it
-     * 
-     * @param {HTMLImageElement} img the loaded image object
-     */
-    private writeStartButtonToStartScreen(img: HTMLImageElement) {
-        const x = this.canvas.width / 2;
-        const y = this.canvas.height / 2 + 219; // 219 is a nice spot for the button
-
-        this.ctx.drawImage(img, x  - img.width / 2, y);
-
-        this.writeTextToCanvas("Play", 20, x, y + 26, 'center', 'black');
+        // See if user wants to go to the next screen
+        if (this.keyListener.isKeyDown(KeyListener.KEY_S)) {
+            this.currentScreen = Game.LEVEL_SCREEN;
+        }
     }
 
     //-------- level screen methods -------------------------------------
@@ -95,80 +166,47 @@ class Game {
      * Method to initialize the level screen
      */
     public levelScreen() {
+        // Listen to the keyboard to see if there is some player action
+        const d = Math.PI/180 * 1.3;
+        if (this.keyListener.isKeyDown(KeyListener.KEY_LEFT)){
+            this.angle-=d;
+        }
+        if (this.keyListener.isKeyDown(KeyListener.KEY_RIGHT)){
+            this.angle+=d;
+        }
+
         //1. load life images
-        const lifeImageFileName = "./assets/images/SpaceShooterRedux/PNG/UI/playerLife1_blue.png";
-        this.loadImage(lifeImageFileName, this.writeLifeImagesToLevelScreen);
+        const lifeImageFileName = "PNG.UI.playerLife1_blue";
+        let x = 30;
+        let y = 30;
+        // Start a loop for each life in lives
+        for (let life=0; life<this.lives; life++) {
+            // Draw the image at the curren x and y coordinates
+            this.drawImage(lifeImageFileName, x, y);
+            // Increase the x-coordinate for the next image to draw
+            x += 50; 
+        }
 
         //2. draw current score
         this.writeTextToCanvas(`Your score: ${this.score}`, 20, this.canvas.width - 100, 30, 'right');
 
         //3. draw random asteroids
-        const asteroids: Array<string> = [
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big3.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big4.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_med1.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_med3.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small2.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny1.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny2.png",
-        ];
-
-        const maxAsteroidsOnScreen: number = 5;
-
-        for (let i = 0; i < maxAsteroidsOnScreen; i++) {
-            const index = this.randomNumber(0, asteroids.length);
-            // we use the random number to select a file name from the array
-            this.loadImage(asteroids[index], this.writeAsteroidImageToRandomLocationOnLevelScreen);
+        for (let i = 0; i < this.asteroids.length; i++) {
+            this.drawImage(this.asteroids[i], this.asteroid_x[i], this.asteroid_y[i]);
         }
 
-        //4. draw player spaceship
-        const playerSpaceShipFileName = "./assets/images/SpaceShooterRedux/PNG/playerShip1_blue.png";
-        this.loadImage(playerSpaceShipFileName, this.writePlayerShipToLevelScreen);
-    }
+        // //4. draw player spaceship
+        const playerSpaceShipFileName = "PNG.playerShip1_blue";
+        let img = this.repo.getImage(playerSpaceShipFileName);
+        x = this.canvas.width / 2 - img.width / 2;
+        y = this.canvas.height / 2 - img.height / 2;
+        this.drawImage(playerSpaceShipFileName, x, y, this.angle);
 
-    /**
-     * Uses the loaded life image to remaining lives of the player on the rop 
-     * left of the screen.
-     * 
-     * @param {HTMLImageElement} img the loaded image object
-     */
-    private writeLifeImagesToLevelScreen(img: HTMLImageElement) {
-        let x = 10;
-        const y = img.height -10;
-        // Start a loop for each life in lives
-        for (let life=0; life<this.lives; life++) {
-            // Draw the image at the curren x and y coordinates
-            this.ctx.drawImage(img, x, y);
-            // Increase the x-coordinate for the next image to draw
-            x += img.width + 10; 
+        // See if the user wants to go to the next screen
+        if (this.keyListener.isKeyDown(KeyListener.KEY_ESC)) {
+            this.currentScreen = Game.TITLE_SCREEN;
         }
-    }
 
-
-    /**
-     * Writes a loaded asteroid image at a random location on the screen.
-     * 
-     * @param {HTMLImageElement} img the loaded image object
-     */
-    private writeAsteroidImageToRandomLocationOnLevelScreen(img: HTMLImageElement) {
-        const x = this.randomNumber(0, this.canvas.width - img.width);
-        const y = this.randomNumber(0, this.canvas.height - img.height);
-        this.ctx.drawImage(img, x, y);
-    }
-
-    /**
-     * Writes the loaded Player Ship image to the center of the screen
-     * 
-     * @param {HTMLImageElement} img the loaded image object
-     */
-    private writePlayerShipToLevelScreen(img: HTMLImageElement) {
-        // Target position: center of image must be the center of the screen
-        const x = this.canvas.width / 2 - img.width / 2;
-        const y = this.canvas.height / 2 - img.height / 2;
-        this.ctx.drawImage(img, x, y);
     }
 
     //-------- Title screen methods -------------------------------------
@@ -185,11 +223,15 @@ class Game {
 
         //2. draw all highscores
         this.writeTextToCanvas("HIGHSCORES", 40, x, y);
-
         for (let i=0; i<this.highscores.length; i++) {
             y += 40;
             const text = `${i + 1}: ${this.highscores[i].playerName} - ${this.highscores[i].score}`;
             this.writeTextToCanvas(text, 20, x, y);
+        }
+
+        // See if the user wants to go to the next screen
+        if (this.keyListener.isKeyDown(KeyListener.KEY_SPACE)) {
+            this.currentScreen = Game.START_SCREEN;
         }
     }
 
@@ -219,39 +261,13 @@ class Game {
     }
 
 
-    /**
-     * Loads an image file into the DOM and writes it to the canvas. After the
-     * image is loaded and ready to be drawn to the canvas, the specified
-     * callback method will be invoked. the method will be called with the
-     * loaded imageElement as a parameter.
-     *
-     * The callback method MUST be a method of this class with a header like:
-     *
-     *   private yourMethodNameHere(img: HTMLImageElement)
-     *
-     * In the body of that callback you can draw the image to the canvas
-     * context like:
-     *
-     *   this.ctx.drawImage(img, someX, someY);
-     *
-     * This is the simplest way to draw images, because the browser must and
-     * shall wait until the image is completely loaded into memory.
-     *
-     * @param {string} source - the name of the image file
-     * @param {Function} callback - method that is invoked after the image is loaded
-     */
-    private loadImage(source: string, callback: Function) {
-        let imageElement = new Image();
-
-        // We must wait until the image file is loaded into the element
-        // We add an event listener
-        // We'll be using an arrow function for this, just because we must.
-        imageElement.addEventListener("load", () => {
-            callback.apply(this, [imageElement]);
-        });
-
-        // Now, set the src to start loading the image
-        imageElement.src = source;
+    private drawImage(name:string, x:number, y:number, angle:number = 0) {
+        let img = this.repo.getImage(name);
+        this.ctx.save();
+        this.ctx.translate(x,y);
+        this.ctx.rotate(angle);
+        this.ctx.drawImage(img, -img.width / 2,  -img.height / 2);
+        this.ctx.restore();
     }
 
     /**
@@ -262,6 +278,24 @@ class Game {
     public randomNumber(min: number, max: number): number {
         return Math.round(Math.random() * (max - min) + min);
     }
+
+
+    //----------------- Animation Methods -------------------------------------
+
+    /**
+     * Start the animation loop
+     */
+    private startAnimation() {
+        console.log('start animation');
+        requestAnimationFrame(this.animate);
+    }
+
+    animate = () => {
+        this.frameCounter++;
+        this.loop();
+        requestAnimationFrame(this.animate);
+    }
+
 }
 
 //this will get an HTML element. I cast this element in de appropriate type using <>
