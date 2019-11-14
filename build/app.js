@@ -1,27 +1,46 @@
 class Game {
     constructor(canvasId) {
+        this.loop = () => {
+            this.loadImage(this.Asteroid.image, this.drawMovingImageToLevelScreen);
+            this.loadImage(this.LargeAsteroid.image, this.drawLargeMovingImageToLevelScreen);
+            requestAnimationFrame(this.loop);
+        };
         this.canvas = canvasId;
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-        this.ctx = this.canvas.getContext('2d');
+        this.ctx = this.canvas.getContext("2d");
         this.player = "Player one";
         this.score = 400;
         this.lives = 3;
+        this.Asteroid = {
+            image: "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png",
+            xPos: this.randomNumber(0, this.canvas.width - 10),
+            yPos: this.randomNumber(0, this.canvas.height - 10),
+            xVel: 3,
+            yVel: 3
+        };
+        this.LargeAsteroid = {
+            image: "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png",
+            xPos: this.randomNumber(0, this.canvas.width - 10),
+            yPos: this.randomNumber(0, this.canvas.height - 10),
+            xVel: 3,
+            yVel: 3
+        };
         this.highscores = [
             {
-                playerName: 'Loek',
+                playerName: "Loek",
                 score: 40000
             },
             {
-                playerName: 'Daan',
+                playerName: "Daan",
                 score: 34000
             },
             {
-                playerName: 'Rimmert',
+                playerName: "Rimmert",
                 score: 200
             }
         ];
-        this.startScreen();
+        this.loop();
     }
     startScreen() {
         this.writeTextToCanvas("Asteroids", 140, this.canvas.width / 2, 150);
@@ -40,12 +59,12 @@ class Game {
         const x = this.canvas.width / 2;
         const y = this.canvas.height / 2 + 219;
         this.ctx.drawImage(img, x - img.width / 2, y);
-        this.writeTextToCanvas("Play", 20, x, y + 26, 'center', 'black');
+        this.writeTextToCanvas("Play", 20, x, y + 26, "center", "black");
     }
     levelScreen() {
         const lifeImageFileName = "./assets/images/SpaceShooterRedux/PNG/UI/playerLife1_blue.png";
         this.loadImage(lifeImageFileName, this.writeLifeImagesToLevelScreen);
-        this.writeTextToCanvas(`Your score: ${this.score}`, 20, this.canvas.width - 100, 30, 'right');
+        this.writeTextToCanvas(`Your score: ${this.score}`, 20, this.canvas.width - 100, 30, "right");
         const asteroids = [
             "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big1.png",
             "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png",
@@ -56,7 +75,7 @@ class Game {
             "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png",
             "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small2.png",
             "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny1.png",
-            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny2.png",
+            "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny2.png"
         ];
         const maxAsteroidsOnScreen = 5;
         for (let i = 0; i < maxAsteroidsOnScreen; i++) {
@@ -84,6 +103,33 @@ class Game {
         const y = this.canvas.height / 2 - img.height / 2;
         this.ctx.drawImage(img, x, y);
     }
+    drawMovingImageToLevelScreen(img) {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(img, this.Asteroid.xPos, this.Asteroid.yPos);
+        if (this.Asteroid.xPos + img.width > this.canvas.width ||
+            this.Asteroid.xPos < 0) {
+            this.Asteroid.xVel = -this.Asteroid.xVel;
+        }
+        if (this.Asteroid.yPos + img.height > this.canvas.height ||
+            this.Asteroid.yPos < 0) {
+            this.Asteroid.yVel = -this.Asteroid.yVel;
+        }
+        this.Asteroid.xPos += this.Asteroid.xVel;
+        this.Asteroid.yPos += this.Asteroid.yVel;
+    }
+    drawLargeMovingImageToLevelScreen(img) {
+        this.ctx.drawImage(img, this.LargeAsteroid.xPos, this.LargeAsteroid.yPos);
+        if (this.LargeAsteroid.xPos + img.width > this.canvas.width ||
+            this.LargeAsteroid.xPos < 0) {
+            this.LargeAsteroid.xVel = -this.LargeAsteroid.xVel;
+        }
+        if (this.LargeAsteroid.yPos + img.height > this.canvas.height ||
+            this.LargeAsteroid.yPos < 0) {
+            this.LargeAsteroid.yVel = -this.LargeAsteroid.yVel;
+        }
+        this.LargeAsteroid.xPos += this.LargeAsteroid.xVel;
+        this.LargeAsteroid.yPos += this.LargeAsteroid.yVel;
+    }
     titleScreen() {
         const x = this.canvas.width / 2;
         let y = this.canvas.height / 2;
@@ -102,7 +148,7 @@ class Game {
         this.ctx.fillText(text, xCoordinate, yCoordinate);
     }
     loadImage(source, callback) {
-        let imageElement = new Image();
+        const imageElement = new Image();
         imageElement.addEventListener("load", () => {
             callback.apply(this, [imageElement]);
         });
@@ -113,7 +159,7 @@ class Game {
     }
 }
 let init = function () {
-    const Asteroids = new Game(document.getElementById('canvas'));
+    const Asteroids = new Game(document.getElementById("canvas"));
 };
-window.addEventListener('load', init);
+window.addEventListener("load", init);
 //# sourceMappingURL=app.js.map
