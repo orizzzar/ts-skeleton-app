@@ -41,17 +41,7 @@ class ImageRepository {
      * @returns {boolean} true if not all resources are loaded
      */
     public isLoading() : boolean {
-        if (this.loadingAssets.length==0) {
-            return false;
-        }
-        // Loaded items are deleted from the array, but they leave empty slots
-        // so, we must check if all slots are empty to see if all is loaded
-        for(let i=0; i<this.loadingAssets.length; i++) {
-            if (this.loadingAssets[i]!=null) {
-                return true;
-            }
-        }
-        return false;
+        return this.loadingAssets.length > 0;
     }
 
     /**
@@ -81,8 +71,7 @@ class ImageRepository {
             const key = this.generateKeyFromSrc(imageElement.src);
             this.assets[key] = imageElement;
             // Remove the key from the array of loading assets 
-            // BEWARE: it leaves an empty slot in the array
-            delete this.loadingAssets[this.loadingAssets.indexOf(key)];
+            this.loadingAssets.splice(this.loadingAssets.indexOf(key), 1);
         });
 
         const src = this.generateURL(name);

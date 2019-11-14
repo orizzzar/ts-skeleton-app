@@ -1,4 +1,7 @@
 class Game {
+
+    public static readonly DEBUG = true;
+    
     // Global attributes for canvas
     // Readonly attributes are read-only. They can only be initialized in the constructor
     private readonly canvas: HTMLCanvasElement; 
@@ -17,6 +20,7 @@ class Game {
         "PNG/UI/buttonBlue.png",
         "PNG/UI/playerLife1_blue.png",
         "PNG/playerShip1_blue.png",
+        "PNG/Lasers/laserRed07.png",
         "PNG/Meteors/meteorBrown_big1.png",
         "PNG/Meteors/meteorBrown_big2.png",
         "PNG/Meteors/meteorBrown_big3.png",
@@ -42,9 +46,9 @@ class Game {
         "PNG.Meteors.meteorBrown_tiny2",
     ];
 
-    private asteroids : string[] = [];
-    private asteroid_x : number[] = [];
-    private asteroid_y : number[] = [];
+
+    private ship : Ship;
+    private asteroids : Asteroid[] = [];
     
     private static readonly LOAD_SCREEN = 0;
     private static readonly START_SCREEN = 1;
@@ -83,19 +87,6 @@ class Game {
             }
         ]
 
-        const maxAsteroidsOnScreen: number = 5;
-
-        for (let i = 0; i < maxAsteroidsOnScreen; i++) {
-            const index = this.randomNumber(0, this.asteroid_names.length-1);
-            const x = this.randomNumber(0, this.canvas.width - 20);
-            const y = this.randomNumber(0, this.canvas.height - 20);
-            this.asteroids[i] = this.asteroid_names[index];
-            this.asteroid_x[i] = x;
-            this.asteroid_y[i] = y;
-        }
-        console.log(this.asteroid_x);
-        console.log(this.asteroid_y);
-        console.log(this.asteroids);
         this.repo = new ImageRepository("./assets/images/SpaceShooterRedux", this.images);
         this.startAnimation();
     }
@@ -128,7 +119,7 @@ class Game {
 
         // See if the repo is fully loaded to progress to the start screen
         // Minimum time of approx 2 seconds (on 60fps)
-        if (!this.repo.isLoading() && this.frameCounter > 60 * 1) {
+        if (!this.repo.isLoading() && this.frameCounter > 60 * 0.1) {
             this.currentScreen = Game.START_SCREEN;
         }
     }
@@ -158,50 +149,112 @@ class Game {
         // See if user wants to go to the next screen
         if (this.keyListener.isKeyDown(KeyListener.KEY_S)) {
             this.currentScreen = Game.LEVEL_SCREEN;
+            this.initLevel();
         }
     }
 
     //-------- level screen methods -------------------------------------
     /**
+     * Initializes a new level
+     */
+    private initLevel() {
+        const maxAsteroidsOnScreen: number = 10;
+
+        for (let i = 0; i < maxAsteroidsOnScreen; i++) {
+            const index = this.randomNumber(0, this.asteroid_names.length-1);
+            const image = this.repo.getImage(this.asteroid_names[index]);
+            const position = new Vector(
+                this.randomNumber(0,this.canvas.width - image.width / 2),
+                this.randomNumber(0, this.canvas.height - image.height / 2)
+            );
+            const speed = new Vector(
+                0.02 * this.randomNumber(-100,100),
+                0.02 * this.randomNumber(-100,100)
+            );
+            const angle = this.randomNumber(0, Math.PI);
+            const angularSpeed = 0.0005 * this.randomNumber(-100, 100);
+            this.asteroids[i] = new Asteroid(image, position, speed, angle, angularSpeed);
+        }
+
+        const image = this.repo.getImage("PNG.playerShip1_blue");
+        const speed = new Vector();
+        const position = new Vector(this.canvas.width / 2, this.canvas.height / 2);
+        this.ship = new Ship(image, position, speed, 0, 0);
+    }
+
+    /**
      * Method to initialize the level screen
      */
     public levelScreen() {
         // Listen to the keyboard to see if there is some player action
-        const d = Math.PI/180 * 1.3;
         if (this.keyListener.isKeyDown(KeyListener.KEY_LEFT)){
-            this.angle-=d;
+            this.ship.decreaseAngularSpeed();
         }
         if (this.keyListener.isKeyDown(KeyListener.KEY_RIGHT)){
-            this.angle+=d;
+            this.ship.increaseAngularSpeed();
+        }
+        if (this.keyListener.isKeyDown(KeyListener.KEY_UP)) {
+            this.ship.thrust();
+        }
+        if (this.keyListener.isKeyDown(KeyListener.KEY_DOWN)) {
+            this.ship.retroBoost();
+        }
+        if (this.keyListener.isKeyDown(KeyListener.KEY_SPACE)) {
+            this.ship.shoot(this.repo.getImage("PNG.Lasers.laserRed07"));
+        } else {
+            this.ship.stopShooting();
         }
 
+
         //1. load life images
-        const lifeImageFileName = "PNG.UI.playerLife1_blue";
+        const lifeImageName = "PNG.UI.playerLife1_blue";
         let x = 30;
         let y = 30;
         // Start a loop for each life in lives
         for (let life=0; life<this.lives; life++) {
             // Draw the image at the curren x and y coordinates
-            this.drawImage(lifeImageFileName, x, y);
+            this.drawImage(lifeImageName, x, y);
             // Increase the x-coordinate for the next image to draw
             x += 50; 
         }
 
-        //2. draw current score
+        //2. move and draw current score
         this.writeTextToCanvas(`Your score: ${this.score}`, 20, this.canvas.width - 100, 30, 'right');
 
         //3. draw random asteroids
         for (let i = 0; i < this.asteroids.length; i++) {
-            this.drawImage(this.asteroids[i], this.asteroid_x[i], this.asteroid_y[i]);
+            this.asteroids[i].move(this.frameCounter, this.canvas.width, this.canvas.height);
+            this.asteroids[i].draw(this.ctx);
         }
 
         // //4. draw player spaceship
-        const playerSpaceShipFileName = "PNG.playerShip1_blue";
-        let img = this.repo.getImage(playerSpaceShipFileName);
-        x = this.canvas.width / 2 - img.width / 2;
-        y = this.canvas.height / 2 - img.height / 2;
-        this.drawImage(playerSpaceShipFileName, x, y, this.angle);
+        this.ship.move(this.frameCounter, this.canvas.width, this.canvas.height);
+        this.ship.draw(this.ctx);
 
+        // 5. Check for collisions
+        let shots = this.ship.shots;
+        for (let i=0; i<shots.length; i++) {
+            for (let j=0; j<this.asteroids.length; j++) {
+                if (shots[i].hits(this.asteroids[j])) {
+                    shots[i].die();
+                    this.asteroids[j].die();
+                }
+            }
+        }
+
+        // Remove dead shots from the game
+        for (let i=0; i<shots.length; i++) {
+            if (shots[i].isDead()) {
+                shots.splice(i, 1);
+            }
+        }
+
+        // Remove dead asteroids from the game
+        for (let j=0; j<this.asteroids.length; j++) {
+            if (this.asteroids[j].isDead()) {
+                this.asteroids.splice(j, 1);
+            }
+        }
         // See if the user wants to go to the next screen
         if (this.keyListener.isKeyDown(KeyListener.KEY_ESC)) {
             this.currentScreen = Game.TITLE_SCREEN;
