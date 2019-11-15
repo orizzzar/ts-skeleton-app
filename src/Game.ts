@@ -12,9 +12,9 @@ class Game {
   private readonly lives: number;
   private readonly highscores: any[]; // TODO: do not use 'any': write an interface!
 
-  // Delclaration astroid image object
-  private Asteroid: any;
-  private LargeAsteroid: any;
+  // Delclaration astroid image objects
+  private asteroid: Asteroid;
+  private largeAsteroid: Asteroid;
 
   public constructor(canvasId: HTMLCanvasElement) {
     // Construct all of the canvas
@@ -29,23 +29,21 @@ class Game {
     this.lives = 3;
 
     // initialisation Asteroids object
-    this.Asteroid = {
-      image:
-        "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png",
-      xPos: this.randomNumber(0, this.canvas.width - 10),
-      yPos: this.randomNumber(0, this.canvas.height - 10),
-      xVel: 3,
-      yVel: 3
-    };
+    this.asteroid = new Asteroid(
+      "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png",
+      this.randomNumber(0, this.canvas.width - 10),
+      this.randomNumber(0, this.canvas.height - 10),
+      3,
+      3
+    );
 
-    this.LargeAsteroid = {
-      image:
-        "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png",
-      xPos: this.randomNumber(0, this.canvas.width - 10),
-      yPos: this.randomNumber(0, this.canvas.height - 10),
-      xVel: 3,
-      yVel: 3
-    };
+    this.largeAsteroid = new Asteroid(
+      "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png",
+      this.randomNumber(0, this.canvas.width - 10),
+      this.randomNumber(0, this.canvas.height - 10),
+      3,
+      3
+    );
 
     this.highscores = [
       {
@@ -220,60 +218,18 @@ class Game {
    * Method game loop
    */
   public loop = () => {
-    this.loadImage(this.Asteroid.image, this.drawMovingImageToLevelScreen);
-    this.loadImage(this.LargeAsteroid.image, this.drawLargeMovingImageToLevelScreen);
+    // Move the game entities
+    this.asteroid.move(this.canvas);
+    this.largeAsteroid.move(this.canvas);
+    
+    // Draw all the entities
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.asteroid.draw(this.ctx);
+    this.largeAsteroid.draw(this.ctx);
+    
+    // Request the next animation frame
     requestAnimationFrame(this.loop);
   };
-
-  /**
-   * Method (callback) to draw a moving asteroid on the screen
-   * @params img - image of the asteroid
-   */
-  private drawMovingImageToLevelScreen(img: HTMLImageElement) {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.drawImage(img, this.Asteroid.xPos, this.Asteroid.yPos);
-
-    if (
-      this.Asteroid.xPos + img.width > this.canvas.width ||
-      this.Asteroid.xPos < 0
-    ) {
-      this.Asteroid.xVel = -this.Asteroid.xVel;
-    }
-    if (
-      this.Asteroid.yPos + img.height > this.canvas.height ||
-      this.Asteroid.yPos < 0
-    ) {
-      this.Asteroid.yVel = -this.Asteroid.yVel;
-    }
-
-    this.Asteroid.xPos += this.Asteroid.xVel;
-    this.Asteroid.yPos += this.Asteroid.yVel;
-  }
-
-  /**
-   * Method (callback) to draw a moving asteroid on the screen
-   * @params img - image of the asteroid
-   */
-  private drawLargeMovingImageToLevelScreen(img: HTMLImageElement) {
-    //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); have to go otherwhise the preceding asteroid will also be removed
-    this.ctx.drawImage(img, this.LargeAsteroid.xPos, this.LargeAsteroid.yPos);
-
-    if (
-      this.LargeAsteroid.xPos + img.width > this.canvas.width ||
-      this.LargeAsteroid.xPos < 0
-    ) {
-      this.LargeAsteroid.xVel = -this.LargeAsteroid.xVel;
-    }
-    if (
-      this.LargeAsteroid.yPos + img.height > this.canvas.height ||
-      this.LargeAsteroid.yPos < 0
-    ) {
-      this.LargeAsteroid.yVel = -this.LargeAsteroid.yVel;
-    }
-
-    this.LargeAsteroid.xPos += this.LargeAsteroid.xVel;
-    this.LargeAsteroid.yPos += this.LargeAsteroid.yVel;
-  }
 
   // -------- Title screen methods -------------------------------------
 

@@ -1,8 +1,41 @@
+class Asteroid {
+    constructor(imgUrl, xPos, yPos, xVel, yVel) {
+        this._xPos = xPos;
+        this._yPos = yPos;
+        this._xVel = xVel;
+        this._yVel = yVel;
+        this.loadImage(imgUrl);
+    }
+    move(canvas) {
+        if (this._xPos + this._img.width / 2 > canvas.width ||
+            this._xPos - this._img.width / 2 < 0) {
+            this._xVel = -this._xVel;
+        }
+        if (this._yPos + this._img.height / 2 > canvas.height ||
+            this._yPos - this._img.height / 2 < 0) {
+            this._yVel = -this._yVel;
+        }
+        this._xPos += this._xVel;
+        this._yPos += this._yVel;
+    }
+    draw(ctx) {
+        const x = this._xPos - this._img.width / 2;
+        const y = this._yPos - this._img.height / 2;
+        ctx.drawImage(this._img, x, y);
+    }
+    loadImage(source) {
+        this._img = new Image();
+        this._img.src = source;
+    }
+}
 class Game {
     constructor(canvasId) {
         this.loop = () => {
-            this.loadImage(this.Asteroid.image, this.drawMovingImageToLevelScreen);
-            this.loadImage(this.LargeAsteroid.image, this.drawLargeMovingImageToLevelScreen);
+            this.asteroid.move(this.canvas);
+            this.largeAsteroid.move(this.canvas);
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.asteroid.draw(this.ctx);
+            this.largeAsteroid.draw(this.ctx);
             requestAnimationFrame(this.loop);
         };
         this.canvas = canvasId;
@@ -12,20 +45,8 @@ class Game {
         this.player = "Player one";
         this.score = 400;
         this.lives = 3;
-        this.Asteroid = {
-            image: "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png",
-            xPos: this.randomNumber(0, this.canvas.width - 10),
-            yPos: this.randomNumber(0, this.canvas.height - 10),
-            xVel: 3,
-            yVel: 3
-        };
-        this.LargeAsteroid = {
-            image: "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png",
-            xPos: this.randomNumber(0, this.canvas.width - 10),
-            yPos: this.randomNumber(0, this.canvas.height - 10),
-            xVel: 3,
-            yVel: 3
-        };
+        this.asteroid = new Asteroid("./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_small1.png", this.randomNumber(0, this.canvas.width - 10), this.randomNumber(0, this.canvas.height - 10), 3, 3);
+        this.largeAsteroid = new Asteroid("./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_big2.png", this.randomNumber(0, this.canvas.width - 10), this.randomNumber(0, this.canvas.height - 10), 3, 3);
         this.highscores = [
             {
                 playerName: "Loek",
@@ -102,33 +123,6 @@ class Game {
         const x = this.canvas.width / 2 - img.width / 2;
         const y = this.canvas.height / 2 - img.height / 2;
         this.ctx.drawImage(img, x, y);
-    }
-    drawMovingImageToLevelScreen(img) {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.drawImage(img, this.Asteroid.xPos, this.Asteroid.yPos);
-        if (this.Asteroid.xPos + img.width > this.canvas.width ||
-            this.Asteroid.xPos < 0) {
-            this.Asteroid.xVel = -this.Asteroid.xVel;
-        }
-        if (this.Asteroid.yPos + img.height > this.canvas.height ||
-            this.Asteroid.yPos < 0) {
-            this.Asteroid.yVel = -this.Asteroid.yVel;
-        }
-        this.Asteroid.xPos += this.Asteroid.xVel;
-        this.Asteroid.yPos += this.Asteroid.yVel;
-    }
-    drawLargeMovingImageToLevelScreen(img) {
-        this.ctx.drawImage(img, this.LargeAsteroid.xPos, this.LargeAsteroid.yPos);
-        if (this.LargeAsteroid.xPos + img.width > this.canvas.width ||
-            this.LargeAsteroid.xPos < 0) {
-            this.LargeAsteroid.xVel = -this.LargeAsteroid.xVel;
-        }
-        if (this.LargeAsteroid.yPos + img.height > this.canvas.height ||
-            this.LargeAsteroid.yPos < 0) {
-            this.LargeAsteroid.yVel = -this.LargeAsteroid.yVel;
-        }
-        this.LargeAsteroid.xPos += this.LargeAsteroid.xVel;
-        this.LargeAsteroid.yPos += this.LargeAsteroid.yVel;
     }
     titleScreen() {
         const x = this.canvas.width / 2;
