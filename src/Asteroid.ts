@@ -1,9 +1,7 @@
 class Asteroid {
 
-    private xPos: number;
-    private yPos: number;
-    private xVel: number;
-    private yVel: number;
+    private pos: Vector;
+    private vel: Vector;
     private angle: number;
     private angleVel: number;
 
@@ -13,24 +11,18 @@ class Asteroid {
      * Construct a new Asteroid object.
      *
      * @param imgUrl url of the image to load
-     * @param xPos X coordinate of its starting position
-     * @param yPos y coordinate of its starting position
-     * @param xVel x part of the velocity vector
-     * @param yVel y part of the velocity vector
+     * @param pos starting position
+     * @param vel velocity vector
      */
     public constructor(
         imgUrl: string,
-        xPos: number,
-        yPos: number,
-        xVel: number,
-        yVel: number,
+        pos: Vector,
+        vel: Vector,
         angle: number,
         angleVel: number
     ) {
-        this.xPos = xPos;
-        this.yPos = yPos;
-        this.xVel = xVel;
-        this.yVel = yVel;
+        this.pos = pos;
+        this.vel = vel;
         this.angle = angle;
         this.angleVel = angleVel;
         this.loadImage(imgUrl);
@@ -44,21 +36,20 @@ class Asteroid {
      */
     public move(canvas: HTMLCanvasElement) {
         if (
-            this.xPos + this.img.width / 2 > canvas.width ||
-            this.xPos - this.img.width / 2 < 0
+            this.pos.x + this.img.width / 2 > canvas.width ||
+            this.pos.y - this.img.width / 2 < 0
         ) {
-            this.xVel = -this.xVel;
+            this.vel = this.vel.mirror_Y();
         }
         if (
-            this.yPos + this.img.height / 2 > canvas.height ||
-            this.yPos - this.img.height / 2 < 0
+            this.pos.y + this.img.height / 2 > canvas.height ||
+            this.pos.y - this.img.height / 2 < 0
         ) {
-            this.yVel = -this.yVel;
+            this.vel = this.vel.mirror_X();
         }
 
         // Use the velocity to change the position
-        this.xPos += this.xVel;
-        this.yPos += this.yVel;
+        this.pos = this.pos.add(this.vel);
         this.angle += this.angleVel;
     }
 
@@ -70,8 +61,8 @@ class Asteroid {
      */
     public draw(ctx: CanvasRenderingContext2D) {
         // We want the center of the image to be the position of this asteroid
-        const x = this.xPos - this.img.width / 2;
-        const y = this.yPos - this.img.height / 2;
+        const x = this.pos.x - this.img.width / 2;
+        const y = this.pos.y - this.img.height / 2;
 
         // save the context state
         ctx.save();

@@ -56,10 +56,14 @@ class Game {
             this.asteroids.push(
                 new Asteroid(
                     asteroidFilenames[randomIndex],
-                    this.randomNumber(0, this.canvas.width - 120),
-                    this.randomNumber(0, this.canvas.height - 98),
-                    this.randomNumber(0, 10),
-                    this.randomNumber(0, 10),
+                    new Vector(
+                      this.randomNumber(0, this.canvas.width - 120),
+                      this.randomNumber(0, this.canvas.height - 98)
+                    ),
+                    new Vector(
+                      this.randomNumber(0, 10),
+                      this.randomNumber(0, 10)
+                    ),
                     this.randomNumber(0, 2 * Math.PI),
                     this.randomNumber(-3, 3) / 10.0
                 ),

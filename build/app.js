@@ -1,29 +1,26 @@
 class Asteroid {
-    constructor(imgUrl, xPos, yPos, xVel, yVel, angle, angleVel) {
-        this.xPos = xPos;
-        this.yPos = yPos;
-        this.xVel = xVel;
-        this.yVel = yVel;
+    constructor(imgUrl, pos, vel, angle, angleVel) {
+        this.pos = pos;
+        this.vel = vel;
         this.angle = angle;
         this.angleVel = angleVel;
         this.loadImage(imgUrl);
     }
     move(canvas) {
-        if (this.xPos + this.img.width / 2 > canvas.width ||
-            this.xPos - this.img.width / 2 < 0) {
-            this.xVel = -this.xVel;
+        if (this.pos.x + this.img.width / 2 > canvas.width ||
+            this.pos.y - this.img.width / 2 < 0) {
+            this.vel = this.vel.mirror_Y();
         }
-        if (this.yPos + this.img.height / 2 > canvas.height ||
-            this.yPos - this.img.height / 2 < 0) {
-            this.yVel = -this.yVel;
+        if (this.pos.y + this.img.height / 2 > canvas.height ||
+            this.pos.y - this.img.height / 2 < 0) {
+            this.vel = this.vel.mirror_X();
         }
-        this.xPos += this.xVel;
-        this.yPos += this.yVel;
+        this.pos = this.pos.add(this.vel);
         this.angle += this.angleVel;
     }
     draw(ctx) {
-        const x = this.xPos - this.img.width / 2;
-        const y = this.yPos - this.img.height / 2;
+        const x = this.pos.x - this.img.width / 2;
+        const y = this.pos.y - this.img.height / 2;
         ctx.save();
         ctx.translate(x, y);
         ctx.rotate(this.angle);
@@ -71,7 +68,7 @@ class Game {
         const asteroid_count = 500;
         for (let i = 0; i < asteroid_count; i++) {
             const randomIndex = this.randomNumber(0, asteroidFilenames.length);
-            this.asteroids.push(new Asteroid(asteroidFilenames[randomIndex], this.randomNumber(0, this.canvas.width - 120), this.randomNumber(0, this.canvas.height - 98), this.randomNumber(0, 10), this.randomNumber(0, 10), this.randomNumber(0, 2 * Math.PI), this.randomNumber(-3, 3) / 10.0));
+            this.asteroids.push(new Asteroid(asteroidFilenames[randomIndex], new Vector(this.randomNumber(0, this.canvas.width - 120), this.randomNumber(0, this.canvas.height - 98)), new Vector(this.randomNumber(0, 10), this.randomNumber(0, 10)), this.randomNumber(0, 2 * Math.PI), this.randomNumber(-3, 3) / 10.0));
         }
         this.highscores = [
             {
@@ -200,4 +197,57 @@ let init = () => {
     const Asteroids = new Game(document.getElementById("canvas"));
 };
 window.addEventListener("load", init);
+class Vector {
+    constructor(x = 0, y = 0) {
+        this._size = null;
+        this._angle = null;
+        this._x = x;
+        this._y = y;
+    }
+    static fromSizeAndAngle(size, angle) {
+        let x = size * Math.sin(angle);
+        let y = size * Math.cos(angle);
+        return new Vector(x, y);
+    }
+    get x() {
+        return this._x;
+    }
+    get y() {
+        return this._y;
+    }
+    get size() {
+        if (!this._size) {
+            this._size = Math.sqrt(Math.pow(this._x, 2) +
+                Math.pow(this._y, 2));
+        }
+        return this._size;
+    }
+    get angle() {
+        if (!this._angle) {
+            this._angle = Math.atan(this._y / this._x);
+        }
+        return this._angle;
+    }
+    add(input) {
+        return new Vector(this._x + input.x, this._y + input.y);
+    }
+    subtract(input) {
+        return new Vector(this._x - input.x, this._y - input.y);
+    }
+    scale(scalar) {
+        return new Vector(this._x * scalar, this._y * scalar);
+    }
+    normalize() {
+        return Vector.fromSizeAndAngle(1, this.angle);
+    }
+    mirror_X() {
+        return new Vector(this._x, this._y * -1);
+    }
+    mirror_Y() {
+        return new Vector(this._x * -1, this._y);
+    }
+    distance(input) {
+        return this.subtract(input).size;
+    }
+}
 //# sourceMappingURL=app.js.map
