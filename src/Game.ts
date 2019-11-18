@@ -15,6 +15,11 @@ class Game {
     // Asteroids
     private asteroids: Asteroid[];
 
+    // Attributes for calculating the frame rate (FPS)
+    private previous_fps_tick: number;
+    private fps_count: number;
+    private current_fps: number;
+
     public constructor(canvasId: HTMLCanvasElement) {
         // Construct all of the canvas
         this.canvas = canvasId;
@@ -43,7 +48,9 @@ class Game {
 
         // Initialize a random number of random asteroids
         this.asteroids = [];
-        for (let i = 0; i < this.randomNumber(5, 20); i++) {
+        // Make a large amount of asteroids
+        const asteroid_count = 500; //this.randomNumber(5, 20)
+        for (let i = 0; i < asteroid_count; i++) {
             const randomIndex = this.randomNumber(0, asteroidFilenames.length);
 
             this.asteroids.push(
@@ -74,6 +81,9 @@ class Game {
             },
         ];
 
+        this.previous_fps_tick = performance.now();
+        this.current_fps = 0;
+        this.fps_count = 0;
         this.loop();
 
         // All screens: uncomment to activate
@@ -95,9 +105,13 @@ class Game {
             asteroid.draw(this.ctx);
         });
 
+        // Measure FPS
+        this.measureFPS();
+
         // Request the next animation frame
         requestAnimationFrame(this.loop);
     }
+
 
     // -------- Splash screen methods ------------------------------------
     /**
@@ -273,6 +287,26 @@ class Game {
     }
 
     // -------Generic canvas methods ----------------------------------
+
+    /**
+     * Measures and draws the frame rate. 
+     */
+    private measureFPS() {
+      const time_diff = performance.now() - this.previous_fps_tick;
+      if (time_diff >= 1000) {
+        this.current_fps = this.fps_count;
+        this.fps_count = 0;
+        this.previous_fps_tick = performance.now();
+      }
+      else {
+        this.fps_count++;
+      }
+      // Draw FPS
+      const text = `${this.current_fps} FPS`;
+      this.ctx.font = `12px Courier`;
+      this.ctx.fillStyle = '#ffffb3';
+      this.ctx.fillText(text, this.canvas.width - 100, this.canvas.height - 14);
+    }
 
     /**
      * Writes text to the canvas

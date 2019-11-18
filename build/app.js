@@ -45,6 +45,7 @@ class Game {
                 asteroid.move(this.canvas);
                 asteroid.draw(this.ctx);
             });
+            this.measureFPS();
             requestAnimationFrame(this.loop);
         };
         this.canvas = canvasId;
@@ -67,7 +68,8 @@ class Game {
             "./assets/images/SpaceShooterRedux/PNG/Meteors/meteorBrown_tiny2.png",
         ];
         this.asteroids = [];
-        for (let i = 0; i < this.randomNumber(5, 20); i++) {
+        const asteroid_count = 500;
+        for (let i = 0; i < asteroid_count; i++) {
             const randomIndex = this.randomNumber(0, asteroidFilenames.length);
             this.asteroids.push(new Asteroid(asteroidFilenames[randomIndex], this.randomNumber(0, this.canvas.width - 120), this.randomNumber(0, this.canvas.height - 98), this.randomNumber(0, 10), this.randomNumber(0, 10), this.randomNumber(0, 2 * Math.PI), this.randomNumber(-3, 3) / 10.0));
         }
@@ -85,6 +87,9 @@ class Game {
                 score: 200,
             },
         ];
+        this.previous_fps_tick = performance.now();
+        this.current_fps = 0;
+        this.fps_count = 0;
         this.loop();
     }
     startScreen() {
@@ -158,6 +163,21 @@ class Game {
             const text = `${i + 1}: ${this.highscores[i].playerName} - ${this.highscores[i].score}`;
             this.writeTextToCanvas(text, 20, x, y);
         }
+    }
+    measureFPS() {
+        const time_diff = performance.now() - this.previous_fps_tick;
+        if (time_diff >= 1000) {
+            this.current_fps = this.fps_count;
+            this.fps_count = 0;
+            this.previous_fps_tick = performance.now();
+        }
+        else {
+            this.fps_count++;
+        }
+        const text = `${this.current_fps} FPS`;
+        this.ctx.font = `12px Courier`;
+        this.ctx.fillStyle = '#ffffb3';
+        this.ctx.fillText(text, this.canvas.width - 100, this.canvas.height - 14);
     }
     writeTextToCanvas(text, fontSize = 20, xCoordinate, yCoordinate, alignment = "center", color = "white") {
         this.ctx.font = `${fontSize}px Minecraft`;
