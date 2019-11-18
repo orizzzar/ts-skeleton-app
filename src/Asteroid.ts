@@ -4,6 +4,9 @@ class Asteroid {
     private yPos: number;
     private xVel: number;
     private yVel: number;
+    private angle: number;
+    private angleVel: number;
+
     private img: HTMLImageElement;
 
     /**
@@ -21,11 +24,15 @@ class Asteroid {
         yPos: number,
         xVel: number,
         yVel: number,
+        angle: number,
+        angleVel: number
     ) {
         this.xPos = xPos;
         this.yPos = yPos;
         this.xVel = xVel;
         this.yVel = yVel;
+        this.angle = angle;
+        this.angleVel = angleVel;
         this.loadImage(imgUrl);
     }
 
@@ -52,6 +59,7 @@ class Asteroid {
         // Use the velocity to change the position
         this.xPos += this.xVel;
         this.yPos += this.yVel;
+        this.angle += this.angleVel;
     }
 
     /**
@@ -65,10 +73,18 @@ class Asteroid {
         const x = this.xPos - this.img.width / 2;
         const y = this.yPos - this.img.height / 2;
 
+        // save the context state
+        ctx.save();
+
+        ctx.translate(x, y);
+        ctx.rotate(this.angle);
         // If the image is not yet loaded, don't draw anything
         if (this.img.naturalWidth > 0) {
-            ctx.drawImage(this.img, x, y);
+            ctx.drawImage(this.img, -this.img.width / 2, -this.img.height / 2);
         }
+
+        // restore the previous context state
+        ctx.restore();
     }
 
     /**

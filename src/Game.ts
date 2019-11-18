@@ -53,6 +53,8 @@ class Game {
                     this.randomNumber(0, this.canvas.height - 98),
                     this.randomNumber(0, 10),
                     this.randomNumber(0, 10),
+                    this.randomNumber(0, 2 * Math.PI),
+                    this.randomNumber(-3, 3) / 10.0
                 ),
             );
         }
