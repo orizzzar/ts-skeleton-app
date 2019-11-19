@@ -15,6 +15,9 @@ class Game {
     // Asteroids
     private asteroids: Asteroid[];
 
+    // Ship
+    private ship: Ship;
+
     public constructor(canvasId: HTMLCanvasElement) {
         // Construct all of the canvas
         this.canvas = canvasId;
@@ -57,6 +60,15 @@ class Game {
             );
         }
 
+        this.ship = new Ship(
+            "./assets/images/SpaceShooterRedux/PNG/playerShip1_blue.png",
+            this.canvas.width / 2,
+            this.canvas.height / 2,
+            3,
+            3,
+            new KeyboardListener(),
+        );
+
         this.highscores = [
             {
                 playerName: "Loek",
@@ -92,6 +104,10 @@ class Game {
             asteroid.move(this.canvas);
             asteroid.draw(this.ctx);
         });
+
+        // Draw the ship
+        this.ship.move(this.canvas);
+        this.ship.draw(this.ctx);
 
         // Request the next animation frame
         requestAnimationFrame(this.loop);
