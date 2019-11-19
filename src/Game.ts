@@ -27,6 +27,20 @@ class Game {
      * Method game loop
      */
     public loop = () => {
+        // Decide which screen to draw
+        this.switchScreen();
+
+        // Clear the canvas
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw the current screen
+        this.currentScreen.draw();
+
+        // Request the next animation frame
+        requestAnimationFrame(this.loop);
+    }
+
+    private switchScreen() {
         // If the current screen is an instance of the StartScreen class
         // Basically: if the current screen is the start screen
         // And the user pressed "s", render the level screen
@@ -43,15 +57,6 @@ class Game {
         ) {
             this.currentScreen = new TitleScreen(this.canvas, this.ctx);
         }
-
-        // Clear the canvas
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-        // Draw the current screen
-        this.currentScreen.draw();
-
-        // Request the next animation frame
-        requestAnimationFrame(this.loop);
     }
 }
 
