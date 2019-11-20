@@ -3,11 +3,14 @@
 class Game {
     // Global attributes for canvas
     // Readonly attributes are read-only. They can only be initialized in the constructor
-    private readonly canvas: HTMLCanvasElement;
-    private readonly ctx: CanvasRenderingContext2D;
+    public readonly canvas: HTMLCanvasElement;
+    public readonly ctx: CanvasRenderingContext2D;
+    public readonly resources: ResourceRepository;
+    public readonly input: UserInput;
+    public readonly scores: Scores;
 
-    private currentScreen: any;
-    private keyboardListener: KeyboardListener;
+    // Holds the screen that must be displayed each loop
+    private currentScreen: GameScreen;
 
     public constructor(canvasId: HTMLCanvasElement) {
         // Construct all of the canvas
@@ -17,45 +20,57 @@ class Game {
         // Set the context of the canvas
         this.ctx = this.canvas.getContext("2d");
 
-        this.keyboardListener = new KeyboardListener();
-        this.currentScreen = new StartScreen(this.canvas, this.ctx);
+        // Instantiate all other attributes
+        this.resources = new ResourceRepository("./assets/images/SpaceShooterRedux");
+        this.input = new UserInput();
+        this.scores = new Scores();
+
+        // Set the initial screen
+        this.currentScreen = new LoadingScreen(this);
 
         this.loop();
     }
 
     /**
-     * Method game loop
+     * Method game loop. This arrow method is called each animation frame
+     * that is available after the end of the previous loop.
      */
-    public loop = () => {
-        // Decide which screen to draw
-        this.switchScreen();
+    private loop = () => {
+        // Increase the frame counter
+        this.currentScreen.increaseFrameCounter();
+        
+        // Let the current screen listen to the user input
+        this.currentScreen.listen(this.input);
+
+        // Let the current screen move its objects around the canvas
+        this.currentScreen.move(this.canvas);
+
+        // Let the current screen check for collisions
+        this.currentScreen.collide();
 
         // Clear the canvas
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Let the current screen draw itself on the rendering context
+        this.currentScreen.draw(this.ctx);
 
-        // Draw the current screen
-        this.currentScreen.draw();
+        // Let the current screen adjust itself
+        this.currentScreen.adjust(this);
 
         // Request the next animation frame
         requestAnimationFrame(this.loop);
     }
 
-    private switchScreen() {
-        // If the current screen is an instance of the StartScreen class
-        // Basically: if the current screen is the start screen
-        // And the user pressed "s", render the level screen
-        if (
-            this.currentScreen instanceof StartScreen
-            && this.keyboardListener.isKeyDown(KeyboardListener.KEY_S)
-        ) {
-            this.currentScreen = new LevelScreen(this.canvas, this.ctx, this.keyboardListener);
+    /**
+     * Let the game switch to a new screen.
+     * 
+     * @param newScreen the screen to switch to
+     */
+    public switchScreen(newScreen: GameScreen) {
+        if (newScreen == null) {
+            throw new Error("newScreen cannot be null");
         }
-
-        if (
-            this.currentScreen instanceof LevelScreen
-            && this.keyboardListener.isKeyDown(KeyboardListener.KEY_ESC)
-        ) {
-            this.currentScreen = new TitleScreen(this.canvas, this.ctx);
+        if (newScreen != this.currentScreen) {
+            this.currentScreen = newScreen;
         }
     }
 }

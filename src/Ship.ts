@@ -1,35 +1,54 @@
+/**
+ * Class representing a Ship Game Entity.
+ */
 class Ship {
 
-    private xPos: number;
-    private yPos: number;
-    private xVel: number;
-    private yVel: number;
+    private pos: Vector;
+    private vel: Vector;
     private img: HTMLImageElement;
-    private keyboardListener: KeyboardListener;
 
     /**
      * Construct a new Asteroid object.
      *
      * @param imgUrl url of the image to load
-     * @param xPos X coordinate of its starting position
-     * @param yPos y coordinate of its starting position
-     * @param xVel x part of the velocity vector
-     * @param yVel y part of the velocity vector
+     * @param pos coordinates of its starting position
+     * @param vel the velocity vector
      */
     public constructor(
-        imgUrl: string,
-        xPos: number,
-        yPos: number,
-        xVel: number,
-        yVel: number,
-        keyboardListener: KeyboardListener,
+        img: HTMLImageElement,
+        pos: Vector,
     ) {
-        this.xPos = xPos;
-        this.yPos = yPos;
-        this.xVel = xVel;
-        this.yVel = yVel;
-        this.loadImage(imgUrl);
-        this.keyboardListener = keyboardListener;
+        this.img = img;
+        this.pos = pos;
+        this.vel = new Vector();
+    }
+
+
+    /**
+     * Let this ship listen to the suer input. 
+     * 
+     * @param input user input to listen to
+     */
+    public listen(input: UserInput) {
+        // Default velocity should be 0 when user has no keys down
+        let xVel = 0;
+        let yVel = 0;
+
+        // Determine velocity by user input
+        if ( input.isKeyDown(UserInput.KEY_RIGHT) ) {
+            xVel = 3;
+        } else if ( input.isKeyDown(UserInput.KEY_LEFT) ) {
+            xVel = -3;
+        }
+
+        if ( input.isKeyDown(UserInput.KEY_UP) ) {
+            yVel = -3;
+        } else if ( input.isKeyDown(UserInput.KEY_DOWN) ) {
+            yVel = 3;
+        }
+
+        // Set the new velocity vector
+        this.vel = new Vector(xVel, yVel);
     }
 
     /**
@@ -39,36 +58,25 @@ class Ship {
      * @param canvas the canvas
      */
     public move(canvas: HTMLCanvasElement) {
+        // Compute new position with the current velocity
+        let newPos = this.pos.add(this.vel);
+
+        const minX = this.img.width / 2;
+        const maxX = canvas.width - minX;
         // Move right if we're not at the right canvas border
-        if (
-            this.keyboardListener.isKeyDown(KeyboardListener.KEY_RIGHT)
-            && this.xPos + this.img.width / 2 < canvas.width
-        ) {
-            this.xPos += this.xVel;
+        if ( newPos.x < minX) {
+            newPos = new Vector(minX, newPos.y);
+        } else if ( newPos.x > maxX ) {
+            newPos = new Vector(maxX, newPos.y);
         }
 
+        const minY = this.img.height / 2;
+        const maxY = canvas.height - minY;
         // Move left if we're not at the left canvas border
-        if (
-            this.keyboardListener.isKeyDown(KeyboardListener.KEY_LEFT)
-            && this.xPos - this.img.width / 2 > 0
-        ) {
-            this.xPos -= this.xVel;
-        }
-
-        // Move up if we're not at the top canvas border
-        if (
-            this.keyboardListener.isKeyDown(KeyboardListener.KEY_UP)
-            && this.yPos - this.img.height / 2 > 0
-        ) {
-            this.yPos -= this.yVel;
-        }
-
-        // Move down if we're not at the bottom canvas border
-        if (
-            this.keyboardListener.isKeyDown(KeyboardListener.KEY_DOWN)
-            && this.yPos + this.img.height / 2 < canvas.height
-        ) {
-            this.yPos += this.yVel;
+        if ( newPos.y < minY) {
+            newPos = new Vector(newPos.x, minY);
+        } else if ( newPos.y > maxY ) {
+            newPos = new Vector(newPos.x, maxY);
         }
     }
 
@@ -80,8 +88,8 @@ class Ship {
      */
     public draw(ctx: CanvasRenderingContext2D) {
         // We want the center of the image to be the position of this asteroid
-        const x = this.xPos - this.img.width / 2;
-        const y = this.yPos - this.img.height / 2;
+        const x = this.pos.x - this.img.width / 2;
+        const y = this.pos.y - this.img.height / 2;
 
         // If the image is not yet loaded, don't draw anything
         if (this.img.naturalWidth > 0) {
@@ -89,16 +97,4 @@ class Ship {
         }
     }
 
-    /**
-     * Loads an image file into the DOM. The image is stored in the img
-     * attribute of this class before it is loaded. This means that this.img
-     * always holds an HTMLImageElement, but it might be empty
-     *
-     * @param {string} source - the name of the image file to load
-     */
-    private loadImage(source: string) {
-        this.img = new Image();
-        // Now, set the src to start loading the image
-        this.img.src = source;
-    }
 }

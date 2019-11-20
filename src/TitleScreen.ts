@@ -1,81 +1,79 @@
 // tslint:disable member-ordering
+/// <reference path="GameScreen.ts"/>
 
-class TitleScreen {
+/**
+ * Shows the last score and the highscores
+ */
+class TitleScreen extends GameScreen {
 
-    private readonly canvas: HTMLCanvasElement;
-    private readonly ctx: CanvasRenderingContext2D;
+    private scores: Scores;
 
-    private readonly highscores: any[]; // TODO: do not use 'any': write an interface!
-    private readonly player: string;
-    private readonly score: number;
+    private shouldSwitchToStartScreen = false;
 
-    public constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
-        this.canvas = canvas;
-        this.ctx = ctx;
-
-        this.player = "Player one";
-        this.score = 400;
-
-        this.highscores = [
-            {
-                playerName: "Loek",
-                score: 40000,
-            },
-            {
-                playerName: "Daan",
-                score: 34000,
-            },
-            {
-                playerName: "Rimmert",
-                score: 200,
-            },
-        ];
+    /**
+     * Construct a new TitleScreen object.
+     * 
+     * @param game the game this screen belongs to
+     */
+    public constructor(game: Game) {
+        super(game);
+        this.scores = game.scores;
     }
 
-    public draw() {
-        const x = this.canvas.width / 2;
-        let y = this.canvas.height / 2;
-
-        // 1. draw your score
-        this.writeTextToCanvas(
-            `${this.player} score is ${this.score}`,
-            80,
-            x,
-            y - 100,
-        );
-
-        // 2. draw all highscores
-        this.writeTextToCanvas("HIGHSCORES", 40, x, y);
-
-        for (let i = 0; i < this.highscores.length; i++) {
-            y += 40;
-            const text = `${i + 1}: ${this.highscores[i].playerName} - ${
-                this.highscores[i].score
-                }`;
-            this.writeTextToCanvas(text, 20, x, y);
+    /**
+     * Let this screen listen to the user input. 
+     * 
+     * @param input user input to listen to
+     */
+    public listen(input: UserInput) {
+        if (input.isKeyDown(UserInput.KEY_SPACE)) {
+            this.shouldSwitchToStartScreen = true;
         }
     }
 
     /**
-     * Writes text to the canvas
-     * @param {string} text - Text to write
-     * @param {number} fontSize - Font size in pixels
-     * @param {number} xCoordinate - Horizontal coordinate in pixels
-     * @param {number} yCoordinate - Vertical coordinate in pixels
-     * @param {string} alignment - Where to align the text
-     * @param {string} color - The color of the text
+     * Let this screen adjust its state and/or let the game switch to a new 
+     * screen to show.
+     * 
+     * @param game the game object, conveniently added as a parameter so you 
+     *      can easily call the switchScreen() method if needed.
      */
-    public writeTextToCanvas(
-        text: string,
-        fontSize: number = 20,
-        xCoordinate: number,
-        yCoordinate: number,
-        alignment: CanvasTextAlign = "center",
-        color: string = "white",
-    ) {
-        this.ctx.font = `${fontSize}px Minecraft`;
-        this.ctx.fillStyle = color;
-        this.ctx.textAlign = alignment;
-        this.ctx.fillText(text, xCoordinate, yCoordinate);
+    public adjust(game: Game) {
+        // Go to next screen after 10 seconds or user hits space
+        if (this.shouldSwitchToStartScreen ||
+            this.frameCount > 10*60) {
+            game.switchScreen(new StartScreen(game));
+        }
     }
+
+    /**
+     * Let this screen draw itself and its gameobjects on the given rendering
+     * context.
+     * 
+     * @param ctx the rendering context to draw on
+     */
+    public draw(ctx: CanvasRenderingContext2D) {
+        const x = this.game.canvas.width / 2;
+        let y = this.game.canvas.height / 2;
+
+        // 1. draw your score
+        this.writeTextToCanvas(
+            ctx,
+            `${this.game.scores.player} score is ${this.scores.score}`,
+            80,
+            new Vector(x, y - 100),
+        );
+
+        // 2. draw all highscores
+        this.writeTextToCanvas(ctx, "HIGHSCORES", 40, new Vector(x, y));
+
+        for (let i = 0; i < this.scores.highscores.length; i++) {
+            y += 40;
+            const text = `${i + 1}: ${this.scores.highscores[i].playerName} - ${
+                this.scores.highscores[i].score
+                }`;
+            this.writeTextToCanvas(ctx, text, 20, new Vector(x, y));
+        }
+    }
+
 }
