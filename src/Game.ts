@@ -9,6 +9,9 @@ class Game {
     public readonly input: UserInput;
     public readonly scores: Scores;
 
+    private debug: boolean = false;
+    private debugDown: boolean = false;
+
     // Holds the screen that must be displayed each loop
     private currentScreen: GameScreen;
 
@@ -53,11 +56,31 @@ class Game {
         // Let the current screen draw itself on the rendering context
         this.currentScreen.draw(this.ctx);
 
+        // Handle debug functionality
+        this.listenForDebug();
+        if (this.debug) {
+            this.currentScreen.drawDebugInfo(this.ctx);
+        }
+ 
         // Let the current screen adjust itself
         this.currentScreen.adjust(this);
 
         // Request the next animation frame
         requestAnimationFrame(this.loop);
+    }
+
+    /**
+     * Listen if the user wants to toggle debug mode
+     */
+    private listenForDebug() {
+        if (this.input.isKeyDown(UserInput.KEY_D)) {
+            if (!this.debugDown) {
+                this.debug = !this.debug;
+                this.debugDown = true;
+            }
+        } else {
+            this.debugDown = false;
+        }
     }
 
     /**

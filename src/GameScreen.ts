@@ -19,6 +19,11 @@ class GameScreen {
      */
     protected frameCount: number = 0;
 
+    // Attributes for calculating the frame rate (FPS)
+    private previous_fps_tick: number;
+    private fps_count: number;
+    private current_fps: number;
+
     /**
      * Construct a new GameScreen object.
      * 
@@ -30,6 +35,7 @@ class GameScreen {
             game.canvas.width / 2,
             game.canvas.height / 2
         );
+        this.previous_fps_tick = performance.now();
     }
 
     /**
@@ -79,6 +85,29 @@ class GameScreen {
      */
     public draw(ctx: CanvasRenderingContext2D) {
 
+    }
+
+    /**
+     * Let this screen draw debug info about itself and its gameobjects on the 
+     * given rendering context.
+     * 
+     * @param ctx the rendering context to draw on
+     */
+    public drawDebugInfo(ctx: CanvasRenderingContext2D) {
+        const time_diff = performance.now() - this.previous_fps_tick;
+        if (time_diff >= 1000) {
+            this.current_fps = this.fps_count;
+            this.fps_count = 0;
+            this.previous_fps_tick = performance.now();
+        }
+        else {
+            this.fps_count++;
+        }
+        // Draw FPS
+        const text = `${this.current_fps} FPS`;
+        ctx.font = `12px Courier`;
+        ctx.fillStyle = '#ffffb3';
+        ctx.fillText(text, this.game.canvas.width - 100, this.game.canvas.height - 14);
     }
 
     /**

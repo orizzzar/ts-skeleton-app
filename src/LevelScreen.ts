@@ -89,7 +89,7 @@ class LevelScreen extends GameScreen {
         // Move all the game entities
         this.asteroids.forEach((asteroid) => {
             asteroid.move(canvas);
-        });
+        }, canvas);
 
         this.ship.move(canvas);
     }
@@ -140,6 +140,23 @@ class LevelScreen extends GameScreen {
 
         // Draw the ship
         this.ship.draw(ctx);
+    }
+
+    /**
+     * Let this screen draw debug info about itself and its gameobjects on the 
+     * given rendering context.
+     * 
+     * @param ctx the rendering context to draw on
+     */
+    public drawDebugInfo(ctx: CanvasRenderingContext2D) {
+        super.drawDebugInfo(ctx);
+        // Draw all the game entities
+        this.asteroids.forEach((asteroid) => {
+            asteroid.drawDebugInfo(ctx);
+        });
+
+        // Draw the ship
+        this.ship.drawDebugInfo(ctx);
     }
 
     /**

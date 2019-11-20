@@ -40,7 +40,7 @@ class LoadingScreen extends GameScreen {
      */
     public adjust(game: Game) {
         // TODO develop functionality to wait untill all resources are loaded
-        if (this.frameCount > 100) {
+        if (this.frameCount > 10) {
             game.switchScreen(new StartScreen(this.game));
         }
     }

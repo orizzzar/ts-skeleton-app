@@ -22,9 +22,25 @@ class Asteroid {
             ctx.drawImage(this.img, x, y);
         }
     }
+    drawDebugInfo(ctx) {
+        ctx.save();
+        ctx.strokeStyle = '#ffffb3';
+        ctx.beginPath();
+        ctx.moveTo(this.pos.x - 50, this.pos.y);
+        ctx.lineTo(this.pos.x + 50, this.pos.y);
+        ctx.moveTo(this.pos.x, this.pos.y - 50);
+        ctx.lineTo(this.pos.x, this.pos.y + 50);
+        ctx.stroke();
+        ctx.font = 'courier 12px';
+        ctx.fillStyle = '#ffffb3';
+        ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
+        ctx.restore();
+    }
 }
 class Game {
     constructor(canvasId) {
+        this.debug = false;
+        this.debugDown = false;
         this.loop = () => {
             this.currentScreen.increaseFrameCounter();
             this.currentScreen.listen(this.input);
@@ -32,6 +48,10 @@ class Game {
             this.currentScreen.collide();
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.currentScreen.draw(this.ctx);
+            this.listenForDebug();
+            if (this.debug) {
+                this.currentScreen.drawDebugInfo(this.ctx);
+            }
             this.currentScreen.adjust(this);
             requestAnimationFrame(this.loop);
         };
@@ -44,6 +64,17 @@ class Game {
         this.scores = new Scores();
         this.currentScreen = new LoadingScreen(this);
         this.loop();
+    }
+    listenForDebug() {
+        if (this.input.isKeyDown(UserInput.KEY_D)) {
+            if (!this.debugDown) {
+                this.debug = !this.debug;
+                this.debugDown = true;
+            }
+        }
+        else {
+            this.debugDown = false;
+        }
     }
     switchScreen(newScreen) {
         if (newScreen == null) {
@@ -63,6 +94,7 @@ class GameScreen {
         this.frameCount = 0;
         this.game = game;
         this.center = new Vector(game.canvas.width / 2, game.canvas.height / 2);
+        this.previous_fps_tick = performance.now();
     }
     listen(input) {
     }
@@ -73,6 +105,21 @@ class GameScreen {
     adjust(game) {
     }
     draw(ctx) {
+    }
+    drawDebugInfo(ctx) {
+        const time_diff = performance.now() - this.previous_fps_tick;
+        if (time_diff >= 1000) {
+            this.current_fps = this.fps_count;
+            this.fps_count = 0;
+            this.previous_fps_tick = performance.now();
+        }
+        else {
+            this.fps_count++;
+        }
+        const text = `${this.current_fps} FPS`;
+        ctx.font = `12px Courier`;
+        ctx.fillStyle = '#ffffb3';
+        ctx.fillText(text, this.game.canvas.width - 100, this.game.canvas.height - 14);
     }
     increaseFrameCounter() {
         this.frameCount++;
@@ -125,7 +172,7 @@ class LevelScreen extends GameScreen {
     move(canvas) {
         this.asteroids.forEach((asteroid) => {
             asteroid.move(canvas);
-        });
+        }, canvas);
         this.ship.move(canvas);
     }
     collide() {
@@ -142,6 +189,13 @@ class LevelScreen extends GameScreen {
             asteroid.draw(ctx);
         });
         this.ship.draw(ctx);
+    }
+    drawDebugInfo(ctx) {
+        super.drawDebugInfo(ctx);
+        this.asteroids.forEach((asteroid) => {
+            asteroid.drawDebugInfo(ctx);
+        });
+        this.ship.drawDebugInfo(ctx);
     }
     writeLifeImagesToLevelScreen(ctx) {
         if (this.life.naturalWidth > 0) {
@@ -172,7 +226,7 @@ class LoadingScreen extends GameScreen {
         game.resources.addImage('playerShip1', 'PNG/playerShip1_blue.png');
     }
     adjust(game) {
-        if (this.frameCount > 100) {
+        if (this.frameCount > 10) {
             game.switchScreen(new StartScreen(this.game));
         }
     }
@@ -264,6 +318,7 @@ class Ship {
         else if (newPos.y > maxY) {
             newPos = new Vector(newPos.x, maxY);
         }
+        this.pos = newPos;
     }
     draw(ctx) {
         const x = this.pos.x - this.img.width / 2;
@@ -271,6 +326,20 @@ class Ship {
         if (this.img.naturalWidth > 0) {
             ctx.drawImage(this.img, x, y);
         }
+    }
+    drawDebugInfo(ctx) {
+        ctx.save();
+        ctx.strokeStyle = '#ffffb3';
+        ctx.beginPath();
+        ctx.moveTo(this.pos.x - 50, this.pos.y);
+        ctx.lineTo(this.pos.x + 50, this.pos.y);
+        ctx.moveTo(this.pos.x, this.pos.y - 50);
+        ctx.lineTo(this.pos.x, this.pos.y + 50);
+        ctx.stroke();
+        ctx.font = 'courier 12px';
+        ctx.fillStyle = '#ffffb3';
+        ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
+        ctx.restore();
     }
 }
 class StartScreen extends GameScreen {

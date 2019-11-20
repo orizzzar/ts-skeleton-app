@@ -78,6 +78,7 @@ class Ship {
         } else if ( newPos.y > maxY ) {
             newPos = new Vector(newPos.x, maxY);
         }
+        this.pos = newPos;
     }
 
     /**
@@ -95,6 +96,22 @@ class Ship {
         if (this.img.naturalWidth > 0) {
             ctx.drawImage(this.img, x, y);
         }
+    }
+
+    public drawDebugInfo(ctx: CanvasRenderingContext2D) {
+        ctx.save();
+        ctx.strokeStyle = '#ffffb3';
+        ctx.beginPath();
+        // Draw center crosshair
+        ctx.moveTo(this.pos.x-50,this.pos.y);
+        ctx.lineTo(this.pos.x+50,this.pos.y);
+        ctx.moveTo(this.pos.x,this.pos.y-50);
+        ctx.lineTo(this.pos.x,this.pos.y+50);
+        ctx.stroke();
+        ctx.font = 'courier 12px';
+        ctx.fillStyle = '#ffffb3';
+        ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
+        ctx.restore();
     }
 
 }
