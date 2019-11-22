@@ -71,9 +71,11 @@ class Vector {
     }
 
     /**
-     * Returns the angle between this vector and the X-axis in radians as a value between -PI/2 and PI/2 radians.
+     * Returns the angle between this vector and the X-axis in radians as a 
+     * value between -PI/2 and PI/2 radians.
      * 
-     * @return the angle between this vector and the X-axis in radians as a value between -PI/2 and PI/2 radians.
+     * @return the angle between this vector and the X-axis in radians as a 
+     * value between -PI/2 and PI/2 radians.
      */
     public get angle(): number
     {
@@ -87,7 +89,8 @@ class Vector {
 
 
     /**
-     * Returns a new Vector representing the sum of this Vector and the given input.
+     * Returns a new Vector representing the sum of this Vector and the given
+     * input.
      * 
      * @param input the Vector that must be subtracted to this Vector
      * @return a new Vector representing the sum of this Vector and the input.
@@ -101,10 +104,12 @@ class Vector {
     }
 
     /**
-     * Returns a new Vector representing the difference between this Vector and the given input.
+     * Returns a new Vector representing the difference between this Vector 
+     * and the given input.
      * 
      * @param input the Vector that must be subtracted to this Vector
-     * @return a new Vector representing the difference between this Vector and the input.
+     * @return a new Vector representing the difference between this Vector 
+     * and the input.
      */
     public subtract(input: Vector) : Vector
     {
@@ -115,10 +120,12 @@ class Vector {
     }
 
     /**
-     * Returns a new Vector representing the distance of the endpoints of this vector and the given input.
+     * Returns a new Vector representing the distance of the endpoints of this 
+     * vector and the given input.
      * 
      * @param input the Vector that must be subtracted to this Vector
-     * @return a new Vector representing the distance of the endpoints of this vector and the input.
+     * @return a new Vector representing the distance of the endpoints of this 
+     * vector and the input.
      */
     public distance(input: Vector): number
     {
@@ -126,10 +133,12 @@ class Vector {
     }
 
     /**
-     * Returns a new Vector representing the result of the multiplication of this vector and the specified scalar.
+     * Returns a new Vector representing the result of the multiplication of 
+     * this vector and the specified scalar.
      * 
      * @param scalar the scalar that should be used in the calculation
-     * @return a new Vector representing the result of the multiplication of this vector and the specified scalar.
+     * @return a new Vector representing the result of the multiplication of 
+     * this vector and the specified scalar.
      */
     public scale(scalar: number) : Vector
     {
@@ -140,7 +149,8 @@ class Vector {
     }
 
     /**
-     * Returns a new Vector representing the normalized vector. This vector has the same angle but the size = 1.
+     * Returns a new Vector representing the normalized vector. This vector has 
+     * the same angle but the size = 1.
      * 
      * @return a new Vector representing the normalized vector.
      */
@@ -150,10 +160,12 @@ class Vector {
     }
 
     /**
-     * Returns a new Vector representing the mirrored version of this vector wih respect to the X-axis. This means that the
-     * Y-portion of this vector will be multiplied by -1.
+     * Returns a new Vector representing the mirrored version of this vector 
+     * with respect to the X-axis. This means that the Y-portion of this vector 
+     * will be multiplied by -1.
      * 
-     * @return a new Vector representing the mirrored version of this vector wih respect to the X-axis.
+     * @return a new Vector representing the mirrored version of this vector 
+     * with respect to the X-axis.
      */
     public mirror_X(): Vector
     {
@@ -161,14 +173,27 @@ class Vector {
     }
 
     /**
-     * Returns a new Vector representing the mirrored version of this vector wih respect to the Y-axis. This means that the
-     * X-portion of this vector will be multiplied by -1.
+     * Returns a new Vector representing the mirrored version of this vector 
+     * with respect to the Y-axis. This means that the X-portion of this vector 
+     * will be multiplied by -1.
      * 
-     * @return a new Vector representing the mirrored version of this vector wih respect to the X-axis.
+     * @return a new Vector representing the mirrored version of this vector 
+     * with respect to the X-axis.
      */
     public mirror_Y(): Vector
     {
         return new Vector(this._x * -1, this._y);
+    }
+
+    /**
+     * Creates a new Vector with the same size, but with an angle that is the 
+     * result of a rotation with the specified angle
+     * 
+     * @param angle the angle (in radians) to rotate
+     * @return a new Vector that is the result of the rotation of this vector
+     */
+    public rotate(angle: number) {
+        return Vector.fromSizeAndAngle(this.size, this.angle + angle);
     }
 
     /**
