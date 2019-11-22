@@ -159,7 +159,7 @@ class LevelScreen extends GameScreen {
         ];
         this.asteroids = [];
         for (let i = 0; i < this.randomNumber(5, 20); i++) {
-            const randomIndex = this.randomNumber(0, asteroidFilenames.length);
+            const randomIndex = this.randomNumber(0, asteroidFilenames.length - 1);
             this.asteroids.push(new Asteroid(game.resources.getImage(asteroidFilenames[randomIndex]), new Vector(this.randomNumber(0, game.canvas.width - 120), this.randomNumber(0, game.canvas.height - 98)), new Vector(this.randomNumber(0, 10), this.randomNumber(0, 10))));
         }
     }
@@ -172,7 +172,7 @@ class LevelScreen extends GameScreen {
     move(canvas) {
         this.asteroids.forEach((asteroid) => {
             asteroid.move(canvas);
-        }, canvas);
+        });
         this.ship.move(canvas);
     }
     collide() {

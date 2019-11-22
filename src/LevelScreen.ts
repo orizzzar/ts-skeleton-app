@@ -58,7 +58,7 @@ class LevelScreen extends GameScreen {
         // Initialize a random number of random asteroids
         this.asteroids = [];
         for (let i = 0; i < this.randomNumber(5, 20); i++) {
-            const randomIndex = this.randomNumber(0, asteroidFilenames.length);
+            const randomIndex = this.randomNumber(0, asteroidFilenames.length - 1);
             this.asteroids.push(new Asteroid(
                 game.resources.getImage(asteroidFilenames[randomIndex]), 
                 new Vector(this.randomNumber(0, game.canvas.width - 120), 
@@ -89,7 +89,7 @@ class LevelScreen extends GameScreen {
         // Move all the game entities
         this.asteroids.forEach((asteroid) => {
             asteroid.move(canvas);
-        }, canvas);
+        });
 
         this.ship.move(canvas);
     }
