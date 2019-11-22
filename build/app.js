@@ -1,25 +1,18 @@
 class GameEntity {
-    constructor(img, pos, vel = new Vector(), angle = Math.PI, angularVelocity = 0) {
+    constructor(img, pos, vel = new Vector()) {
         console.log(img);
         this.img = img;
         this.pos = pos;
         this.vel = vel;
-        this.angle = angle;
-        this.angularVelocity = angularVelocity;
     }
     move(canvas) {
         this.pos = this.pos.add(this.vel);
-        this.angle += this.angularVelocity;
     }
     draw(ctx) {
-        const x = -this.img.width / 2;
-        const y = -this.img.height / 2;
+        const x = this.pos.x - this.img.width / 2;
+        const y = this.pos.y - this.img.height / 2;
         if (this.img.naturalWidth > 0) {
-            ctx.save();
-            ctx.translate(this.pos.x, this.pos.y);
-            ctx.rotate(Math.PI - this.angle);
             ctx.drawImage(this.img, x, y);
-            ctx.restore();
         }
     }
     drawDebugInfo(ctx) {
@@ -34,11 +27,6 @@ class GameEntity {
         ctx.font = 'courier 12px';
         ctx.fillStyle = '#ffffb3';
         ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
-        ctx.moveTo(this.pos.x, this.pos.y);
-        const angleVector = this.pos.add(Vector.fromSizeAndAngle(50, this.angle));
-        ctx.lineTo(angleVector.x, angleVector.y);
-        ctx.stroke();
-        ctx.fillText(`angle: ${this.angle.toFixed(2)}`, this.pos.x + 3, this.pos.y + 10);
         ctx.restore();
     }
 }
@@ -181,7 +169,7 @@ class LevelScreen extends GameScreen {
         this.asteroids = [];
         for (let i = 0; i < this.randomRoundedNumber(5, 20); i++) {
             const randomIndex = this.randomRoundedNumber(0, asteroidFilenames.length - 1);
-            this.asteroids.push(new Asteroid(game.resources.getImage(asteroidFilenames[randomIndex]), new Vector(this.randomRoundedNumber(0, game.canvas.width - 120), this.randomRoundedNumber(0, game.canvas.height - 98)), new Vector(this.randomRoundedNumber(0, 10), this.randomRoundedNumber(0, 10)), this.randomNumber(0, 2 * Math.PI), this.randomNumber(-0.3, 0.3)));
+            this.asteroids.push(new Asteroid(game.resources.getImage(asteroidFilenames[randomIndex]), new Vector(this.randomRoundedNumber(0, game.canvas.width - 120), this.randomRoundedNumber(0, game.canvas.height - 98)), new Vector(this.randomRoundedNumber(0, 10), this.randomRoundedNumber(0, 10))));
         }
     }
     listen(input) {
@@ -303,20 +291,21 @@ class Scores {
 }
 class Ship extends GameEntity {
     listen(input) {
-        let vel = 0;
+        let xVel = 0;
+        let yVel = 0;
         if (input.isKeyDown(UserInput.KEY_RIGHT)) {
-            this.angle -= 0.1;
+            xVel = 3;
         }
         else if (input.isKeyDown(UserInput.KEY_LEFT)) {
-            this.angle += 0.1;
+            xVel = -3;
         }
         if (input.isKeyDown(UserInput.KEY_UP)) {
-            vel = 6;
+            yVel = -3;
         }
         else if (input.isKeyDown(UserInput.KEY_DOWN)) {
-            vel = -6;
+            yVel = 3;
         }
-        this.vel = Vector.fromSizeAndAngle(vel, this.angle);
+        this.vel = new Vector(xVel, yVel);
     }
     move(canvas) {
         super.move(canvas);

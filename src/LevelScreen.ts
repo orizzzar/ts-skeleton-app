@@ -63,9 +63,7 @@ class LevelScreen extends GameScreen {
                 game.resources.getImage(asteroidFilenames[randomIndex]), 
                 new Vector(this.randomRoundedNumber(0, game.canvas.width - 120), 
                 this.randomRoundedNumber(0, game.canvas.height - 98)), 
-                new Vector(this.randomRoundedNumber(0, 10), this.randomRoundedNumber(0, 10)), 
-                this.randomNumber(0, 2 * Math.PI),
-                this.randomNumber(-0.3, 0.3)
+                new Vector(this.randomRoundedNumber(0, 10), this.randomRoundedNumber(0, 10)) 
             ));
         }
     }
