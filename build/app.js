@@ -1,6 +1,5 @@
 class GameEntity {
-    constructor(img, pos, vel = new Vector(), angle = Math.PI, angularVelocity = 0) {
-        console.log(img);
+    constructor(img, pos, vel = new Vector(), angle = 0, angularVelocity = 0) {
         this.img = img;
         this.pos = pos;
         this.vel = vel;
@@ -17,7 +16,7 @@ class GameEntity {
         if (this.img.naturalWidth > 0) {
             ctx.save();
             ctx.translate(this.pos.x, this.pos.y);
-            ctx.rotate(Math.PI - this.angle);
+            ctx.rotate(this.angle + 0.5 * Math.PI);
             ctx.drawImage(this.img, x, y);
             ctx.restore();
         }
@@ -34,11 +33,13 @@ class GameEntity {
         ctx.font = 'courier 12px';
         ctx.fillStyle = '#ffffb3';
         ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
+        ctx.strokeStyle = '#ffe1b8';
+        ctx.beginPath();
         ctx.moveTo(this.pos.x, this.pos.y);
-        const angleVector = this.pos.add(Vector.fromSizeAndAngle(50, this.angle));
+        const angleVector = this.pos.add(Vector.fromSizeAndAngle(60, this.angle));
         ctx.lineTo(angleVector.x, angleVector.y);
         ctx.stroke();
-        ctx.fillText(`angle: ${this.angle.toFixed(2)}`, this.pos.x + 3, this.pos.y + 10);
+        ctx.fillText(`angle: ${this.angle.toFixed(2)}`, angleVector.x + 3, angleVector.y + 10);
         ctx.restore();
     }
 }
@@ -302,13 +303,16 @@ class Scores {
     }
 }
 class Ship extends GameEntity {
+    constructor(img, pos) {
+        super(img, pos, new Vector(), -0.5 * Math.PI);
+    }
     listen(input) {
         let vel = 0;
         if (input.isKeyDown(UserInput.KEY_RIGHT)) {
-            this.angle -= 0.1;
+            this.angle += 0.1;
         }
         else if (input.isKeyDown(UserInput.KEY_LEFT)) {
-            this.angle += 0.1;
+            this.angle -= 0.1;
         }
         if (input.isKeyDown(UserInput.KEY_UP)) {
             vel = 6;
@@ -455,8 +459,8 @@ class Vector {
         this._y = y;
     }
     static fromSizeAndAngle(size, angle) {
-        let x = size * Math.sin(angle);
-        let y = size * Math.cos(angle);
+        let x = size * Math.cos(angle);
+        let y = size * Math.sin(angle);
         return new Vector(x, y);
     }
     get x() {

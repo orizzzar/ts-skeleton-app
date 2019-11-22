@@ -17,11 +17,9 @@ class GameEntity {
         img: HTMLImageElement,
         pos: Vector,
         vel: Vector = new Vector(),
-        angle = Math.PI,
+        angle = 0,
         angularVelocity = 0
     ) {
-        console.log(img);
-        
         this.img = img;
         this.pos = pos;
         this.vel = vel;
@@ -58,7 +56,7 @@ class GameEntity {
             // Translate the origin of the context to the center of the image
             ctx.translate(this.pos.x, this.pos.y);
             // Rotate the entire context the opposite direction
-            ctx.rotate(Math.PI - this.angle);
+            ctx.rotate(this.angle + 0.5 * Math.PI);
             ctx.drawImage(this.img, x, y);
             ctx.restore();
         }
@@ -86,12 +84,14 @@ class GameEntity {
         ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
         
         // Draw angle line
+        ctx.strokeStyle = '#ffe1b8';
+        ctx.beginPath();
         ctx.moveTo(this.pos.x,this.pos.y);
-        const angleVector = this.pos.add(Vector.fromSizeAndAngle(50, this.angle));
+        const angleVector = this.pos.add(Vector.fromSizeAndAngle(60, this.angle));
         ctx.lineTo(angleVector.x, angleVector.y);
         ctx.stroke();
         // Draw angle info
-        ctx.fillText(`angle: ${this.angle.toFixed(2)}`, this.pos.x + 3, this.pos.y + 10);
+        ctx.fillText(`angle: ${this.angle.toFixed(2)}`, angleVector.x + 3, angleVector.y + 10);
         
         ctx.restore();
     }

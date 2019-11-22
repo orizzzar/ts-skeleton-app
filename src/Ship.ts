@@ -7,6 +7,20 @@ class Ship extends GameEntity {
 
 
     /**
+     * Construct a new Asteroid object.
+     *
+     * @param imgUrl url of the image to load
+     * @param pos coordinates of its starting position
+     * @param vel the velocity vector
+     */
+    public constructor(
+        img: HTMLImageElement,
+        pos: Vector,
+    ) {
+        super(img, pos, new Vector(), -0.5 * Math.PI);
+    }
+    
+    /**
      * Let this ship listen to the suer input. 
      * 
      * @param input user input to listen to
@@ -17,9 +31,9 @@ class Ship extends GameEntity {
 
         // Determine velocity by user input
         if ( input.isKeyDown(UserInput.KEY_RIGHT) ) {
-            this.angle -= 0.1;
-        } else if ( input.isKeyDown(UserInput.KEY_LEFT) ) {
             this.angle += 0.1;
+        } else if ( input.isKeyDown(UserInput.KEY_LEFT) ) {
+            this.angle -= 0.1;
         }
 
         if ( input.isKeyDown(UserInput.KEY_UP) ) {

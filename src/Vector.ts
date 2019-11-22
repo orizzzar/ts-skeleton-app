@@ -29,8 +29,8 @@ class Vector {
      * @param angle the angle of the vector (in radians)
      */
     public static fromSizeAndAngle(size: number, angle: number) : Vector {
-        let x = size * Math.sin(angle);
-        let y = size * Math.cos(angle);
+        let x = size * Math.cos(angle);
+        let y = size * Math.sin(angle);
         return new Vector(x, y);
     }
 
