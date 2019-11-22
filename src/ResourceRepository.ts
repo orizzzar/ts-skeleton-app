@@ -41,6 +41,9 @@ class ResourceRepository {
      * @returns {HTMLImageElement} the image represented by the given name
      */
     public getImage(key: string) : HTMLImageElement {
+        if (!(key in this.assets)) {
+            throw new Error(`${key} not in assets`);
+        }
         return <HTMLImageElement>this.assets[key];
     }
 

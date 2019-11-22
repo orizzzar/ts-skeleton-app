@@ -1,25 +1,22 @@
-class Asteroid {
-    constructor(img, pos, vel) {
+class GameEntity {
+    constructor(img, pos, vel = new Vector()) {
+        console.log(img);
         this.img = img;
         this.pos = pos;
         this.vel = vel;
     }
     move(canvas) {
-        if (this.pos.x + this.img.width / 2 > canvas.width ||
-            this.pos.x - this.img.width / 2 < 0) {
-            this.vel = this.vel.mirror_Y();
-        }
-        if (this.pos.y + this.img.height / 2 > canvas.height ||
-            this.pos.y - this.img.height / 2 < 0) {
-            this.vel = this.vel.mirror_X();
-        }
         this.pos = this.pos.add(this.vel);
     }
     draw(ctx) {
-        const x = this.pos.x - this.img.width / 2;
-        const y = this.pos.y - this.img.height / 2;
+        const x = -this.img.width / 2;
+        const y = -this.img.height / 2;
         if (this.img.naturalWidth > 0) {
+            ctx.save();
+            ctx.translate(this.pos.x, this.pos.y);
+            ctx.rotate(this.angle);
             ctx.drawImage(this.img, x, y);
+            ctx.restore();
         }
     }
     drawDebugInfo(ctx) {
@@ -31,10 +28,27 @@ class Asteroid {
         ctx.moveTo(this.pos.x, this.pos.y - 50);
         ctx.lineTo(this.pos.x, this.pos.y + 50);
         ctx.stroke();
+        ctx.moveTo(this.pos.x, this.pos.y);
+        const angleVector = Vector.fromSizeAndAngle(50, this.angle);
+        ctx.lineTo(angleVector.x, angleVector.y);
+        ctx.stroke();
         ctx.font = 'courier 12px';
         ctx.fillStyle = '#ffffb3';
         ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
         ctx.restore();
+    }
+}
+class Asteroid extends GameEntity {
+    move(canvas) {
+        super.move(canvas);
+        if (this.pos.x + this.img.width / 2 > canvas.width ||
+            this.pos.x - this.img.width / 2 < 0) {
+            this.vel = this.vel.mirror_Y();
+        }
+        if (this.pos.y + this.img.height / 2 > canvas.height ||
+            this.pos.y - this.img.height / 2 < 0) {
+            this.vel = this.vel.mirror_X();
+        }
     }
 }
 class Game {
@@ -159,7 +173,7 @@ class LevelScreen extends GameScreen {
         ];
         this.asteroids = [];
         for (let i = 0; i < this.randomNumber(5, 20); i++) {
-            const randomIndex = this.randomNumber(0, asteroidFilenames.length);
+            const randomIndex = this.randomNumber(0, asteroidFilenames.length - 1);
             this.asteroids.push(new Asteroid(game.resources.getImage(asteroidFilenames[randomIndex]), new Vector(this.randomNumber(0, game.canvas.width - 120), this.randomNumber(0, game.canvas.height - 98)), new Vector(this.randomNumber(0, 10), this.randomNumber(0, 10))));
         }
     }
@@ -172,7 +186,7 @@ class LevelScreen extends GameScreen {
     move(canvas) {
         this.asteroids.forEach((asteroid) => {
             asteroid.move(canvas);
-        }, canvas);
+        });
         this.ship.move(canvas);
     }
     collide() {
@@ -245,6 +259,9 @@ class ResourceRepository {
         imageElement.src = this.generateURL(url);
     }
     getImage(key) {
+        if (!(key in this.assets)) {
+            throw new Error(`${key} not in assets`);
+        }
         return this.assets[key];
     }
     generateURL(name) {
@@ -277,20 +294,15 @@ class Scores {
         });
     }
 }
-class Ship {
-    constructor(img, pos) {
-        this.img = img;
-        this.pos = pos;
-        this.vel = new Vector();
-    }
+class Ship extends GameEntity {
     listen(input) {
         let xVel = 0;
         let yVel = 0;
         if (input.isKeyDown(UserInput.KEY_RIGHT)) {
-            xVel = 3;
+            this.angle += 0.3;
         }
         else if (input.isKeyDown(UserInput.KEY_LEFT)) {
-            xVel = -3;
+            this.angle -= 0.3;
         }
         if (input.isKeyDown(UserInput.KEY_UP)) {
             yVel = -3;
@@ -301,45 +313,23 @@ class Ship {
         this.vel = new Vector(xVel, yVel);
     }
     move(canvas) {
-        let newPos = this.pos.add(this.vel);
+        super.move(canvas);
         const minX = this.img.width / 2;
         const maxX = canvas.width - minX;
-        if (newPos.x < minX) {
-            newPos = new Vector(minX, newPos.y);
+        if (this.pos.x < minX) {
+            this.pos = new Vector(minX, this.pos.y);
         }
-        else if (newPos.x > maxX) {
-            newPos = new Vector(maxX, newPos.y);
+        else if (this.pos.x > maxX) {
+            this.pos = new Vector(maxX, this.pos.y);
         }
         const minY = this.img.height / 2;
         const maxY = canvas.height - minY;
-        if (newPos.y < minY) {
-            newPos = new Vector(newPos.x, minY);
+        if (this.pos.y < minY) {
+            this.pos = new Vector(this.pos.x, minY);
         }
-        else if (newPos.y > maxY) {
-            newPos = new Vector(newPos.x, maxY);
+        else if (this.pos.y > maxY) {
+            this.pos = new Vector(this.pos.x, maxY);
         }
-        this.pos = newPos;
-    }
-    draw(ctx) {
-        const x = this.pos.x - this.img.width / 2;
-        const y = this.pos.y - this.img.height / 2;
-        if (this.img.naturalWidth > 0) {
-            ctx.drawImage(this.img, x, y);
-        }
-    }
-    drawDebugInfo(ctx) {
-        ctx.save();
-        ctx.strokeStyle = '#ffffb3';
-        ctx.beginPath();
-        ctx.moveTo(this.pos.x - 50, this.pos.y);
-        ctx.lineTo(this.pos.x + 50, this.pos.y);
-        ctx.moveTo(this.pos.x, this.pos.y - 50);
-        ctx.lineTo(this.pos.x, this.pos.y + 50);
-        ctx.stroke();
-        ctx.font = 'courier 12px';
-        ctx.fillStyle = '#ffffb3';
-        ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
-        ctx.restore();
     }
 }
 class StartScreen extends GameScreen {
@@ -502,6 +492,9 @@ class Vector {
     }
     mirror_Y() {
         return new Vector(this._x * -1, this._y);
+    }
+    rotate(angle) {
+        return Vector.fromSizeAndAngle(this.size, this.angle + angle);
     }
     toString() {
         return `(${this.x.toFixed(0)},${this.y.toFixed(0)})`;
