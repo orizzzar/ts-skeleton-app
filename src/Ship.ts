@@ -13,24 +13,23 @@ class Ship extends GameEntity {
      */
     public listen(input: UserInput) {
         // Default velocity should be 0 when user has no keys down
-        let xVel = 0;
-        let yVel = 0;
+        let vel = 0;
 
         // Determine velocity by user input
         if ( input.isKeyDown(UserInput.KEY_RIGHT) ) {
-            this.angle += 0.3;
+            this.angle -= 0.1;
         } else if ( input.isKeyDown(UserInput.KEY_LEFT) ) {
-            this.angle -= 0.3;
+            this.angle += 0.1;
         }
 
         if ( input.isKeyDown(UserInput.KEY_UP) ) {
-            yVel = -3;
+            vel = 6;
         } else if ( input.isKeyDown(UserInput.KEY_DOWN) ) {
-            yVel = 3;
+            vel = -6;
         }
 
         // Set the new velocity vector
-        this.vel = new Vector(xVel, yVel);
+        this.vel = Vector.fromSizeAndAngle(vel, this.angle);
     }
 
     /**

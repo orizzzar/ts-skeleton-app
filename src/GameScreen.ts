@@ -143,12 +143,21 @@ class GameScreen {
     }
 
     /**
+     * Renders a random integer number between min and max
+     * @param {number} min - minimal time
+     * @param {number} max - maximal time
+     */
+    protected randomRoundedNumber(min: number, max: number): number {
+        return Math.round(this.randomNumber(min, max));
+    }
+
+    /**
      * Renders a random number between min and max
      * @param {number} min - minimal time
      * @param {number} max - maximal time
      */
     protected randomNumber(min: number, max: number): number {
-        return Math.round(Math.random() * (max - min) + min);
+        return Math.random() * (max - min) + min;
     }
 
 

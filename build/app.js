@@ -1,12 +1,15 @@
 class GameEntity {
-    constructor(img, pos, vel = new Vector()) {
+    constructor(img, pos, vel = new Vector(), angle = Math.PI, angularVelocity = 0) {
         console.log(img);
         this.img = img;
         this.pos = pos;
         this.vel = vel;
+        this.angle = angle;
+        this.angularVelocity = angularVelocity;
     }
     move(canvas) {
         this.pos = this.pos.add(this.vel);
+        this.angle += this.angularVelocity;
     }
     draw(ctx) {
         const x = -this.img.width / 2;
@@ -14,7 +17,7 @@ class GameEntity {
         if (this.img.naturalWidth > 0) {
             ctx.save();
             ctx.translate(this.pos.x, this.pos.y);
-            ctx.rotate(this.angle);
+            ctx.rotate(Math.PI - this.angle);
             ctx.drawImage(this.img, x, y);
             ctx.restore();
         }
@@ -28,13 +31,14 @@ class GameEntity {
         ctx.moveTo(this.pos.x, this.pos.y - 50);
         ctx.lineTo(this.pos.x, this.pos.y + 50);
         ctx.stroke();
-        ctx.moveTo(this.pos.x, this.pos.y);
-        const angleVector = Vector.fromSizeAndAngle(50, this.angle);
-        ctx.lineTo(angleVector.x, angleVector.y);
-        ctx.stroke();
         ctx.font = 'courier 12px';
         ctx.fillStyle = '#ffffb3';
         ctx.fillText(`pos: ${this.pos}`, this.pos.x + 3, this.pos.y - 3);
+        ctx.moveTo(this.pos.x, this.pos.y);
+        const angleVector = this.pos.add(Vector.fromSizeAndAngle(50, this.angle));
+        ctx.lineTo(angleVector.x, angleVector.y);
+        ctx.stroke();
+        ctx.fillText(`angle: ${this.angle.toFixed(2)}`, this.pos.x + 3, this.pos.y + 10);
         ctx.restore();
     }
 }
@@ -144,8 +148,11 @@ class GameScreen {
         ctx.textAlign = alignment;
         ctx.fillText(text, position.x, position.y);
     }
+    randomRoundedNumber(min, max) {
+        return Math.round(this.randomNumber(min, max));
+    }
     randomNumber(min, max) {
-        return Math.round(Math.random() * (max - min) + min);
+        return Math.random() * (max - min) + min;
     }
 }
 class LevelScreen extends GameScreen {
@@ -172,9 +179,9 @@ class LevelScreen extends GameScreen {
             "meteor_tiny2",
         ];
         this.asteroids = [];
-        for (let i = 0; i < this.randomNumber(5, 20); i++) {
-            const randomIndex = this.randomNumber(0, asteroidFilenames.length - 1);
-            this.asteroids.push(new Asteroid(game.resources.getImage(asteroidFilenames[randomIndex]), new Vector(this.randomNumber(0, game.canvas.width - 120), this.randomNumber(0, game.canvas.height - 98)), new Vector(this.randomNumber(0, 10), this.randomNumber(0, 10))));
+        for (let i = 0; i < this.randomRoundedNumber(5, 20); i++) {
+            const randomIndex = this.randomRoundedNumber(0, asteroidFilenames.length - 1);
+            this.asteroids.push(new Asteroid(game.resources.getImage(asteroidFilenames[randomIndex]), new Vector(this.randomRoundedNumber(0, game.canvas.width - 120), this.randomRoundedNumber(0, game.canvas.height - 98)), new Vector(this.randomRoundedNumber(0, 10), this.randomRoundedNumber(0, 10)), this.randomNumber(0, 2 * Math.PI), this.randomNumber(-0.3, 0.3)));
         }
     }
     listen(input) {
@@ -296,21 +303,20 @@ class Scores {
 }
 class Ship extends GameEntity {
     listen(input) {
-        let xVel = 0;
-        let yVel = 0;
+        let vel = 0;
         if (input.isKeyDown(UserInput.KEY_RIGHT)) {
-            this.angle += 0.3;
+            this.angle -= 0.1;
         }
         else if (input.isKeyDown(UserInput.KEY_LEFT)) {
-            this.angle -= 0.3;
+            this.angle += 0.1;
         }
         if (input.isKeyDown(UserInput.KEY_UP)) {
-            yVel = -3;
+            vel = 6;
         }
         else if (input.isKeyDown(UserInput.KEY_DOWN)) {
-            yVel = 3;
+            vel = -6;
         }
-        this.vel = new Vector(xVel, yVel);
+        this.vel = Vector.fromSizeAndAngle(vel, this.angle);
     }
     move(canvas) {
         super.move(canvas);
