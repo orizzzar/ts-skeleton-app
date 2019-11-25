@@ -1,9 +1,9 @@
-/// <reference path="GameEntity.ts"/>
+/// <reference path="GameImageEntity.ts"/>
 
 /**
  * Class representing an Asteroid Game Entity.
  */
-class Asteroid extends GameEntity {
+class Asteroid extends GameImageEntity {
 
     /**
      * Let the asteroid move itself with its own given speed. It should also handle the offscreen

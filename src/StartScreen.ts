@@ -6,8 +6,7 @@
  */
 class StartScreen extends GameScreen {
 
-    private asteroid: HTMLImageElement;
-    private button: HTMLImageElement;
+    private components: GameEntity[] = [];
 
     private shouldStartLevel: boolean = false;
 
@@ -19,8 +18,26 @@ class StartScreen extends GameScreen {
     public constructor(game: Game) {
         super(game);
 
-        this.button = game.resources.getImage('button');
-        this.asteroid = game.resources.getImage('meteor_big1');
+        this.components.push(new TextField(
+            new Vector(this.center.x, 150),
+            "Asteroids",
+            140
+        ));
+        this.components.push(new TextField(
+            new Vector(this.center.x, this.center.y - 20),
+            "PRESS S TO PLAY",
+            40,
+        ));
+        this.components.push(new Button(
+            "Press s to play",
+            game.resources.getImage('button'),
+            new Vector(this.center.x, this.center.y + 150),
+        ));
+        this.components.push(new Asteroid(
+            game.resources.getImage('meteor_big1'),
+            new Vector(this.center.x, this.center.y),
+            new Vector(),
+        ));
     }
 
     /**
@@ -54,33 +71,22 @@ class StartScreen extends GameScreen {
      * @param ctx the rendering context to draw on
      */
     public draw(ctx: CanvasRenderingContext2D) {
-        // 1. add 'Asteroids' text
-        this.writeTextToCanvas(ctx, "Asteroids", 140, new Vector(this.center.x, 150));
+        this.components.forEach((component) => {
+            component.draw(ctx);
+        });
+    }
 
-        // 2. add 'Press to play' text
-        this.writeTextToCanvas(
-            ctx,
-            "PRESS S TO PLAY",
-            40,
-            new Vector(this.center.x, this.center.y - 20)
-        );
-
-        // 3. add Asteroid to screen
-        const asteroidX = this.center.x - this.asteroid.width / 2;
-        const asteroidY = this.center.y + this.asteroid.height / 2;
-
-        if (this.asteroid.naturalWidth > 0) {
-            ctx.drawImage(this.asteroid, asteroidX, asteroidY);
-        }
-
-        // 4. add play button
-        const buttonX = this.center.x;
-        const buttonY = this.center.y + 219; // 219 is a nice spot for the button
-
-        if (this.button.naturalWidth > 0) {
-            ctx.drawImage(this.button, buttonX - this.button.width / 2, buttonY);
-            this.writeTextToCanvas(ctx, "Press s to play", 20, new Vector(buttonX, buttonY + 26), "center", "black");
-        }
+    /**
+     * Let this screen draw debug info about itself and its gameobjects on the 
+     * given rendering context.
+     * 
+     * @param ctx the rendering context to draw on
+     */
+    public drawDebugInfo(ctx: CanvasRenderingContext2D) {
+        super.drawDebugInfo(ctx);
+        this.components.forEach((component) => {
+            component.drawDebugInfo(ctx);
+        });
     }
 
 }

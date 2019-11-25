@@ -13,6 +13,8 @@ class LevelScreen extends GameScreen {
     private asteroids: Asteroid[];
     private ship: Ship;
 
+    private scoreField: TextField;
+
     private shouldSwitchToTitleScreen = false;
 
     /**
@@ -24,6 +26,12 @@ class LevelScreen extends GameScreen {
         super(game);
         this.lives = 3;
         this.score = 400;
+
+        this.scoreField = new TextField(
+            new Vector(this.game.canvas.width - 100, 30),
+            `Your score: ${this.score}`, 
+            20
+        );
 
         this.life = game.resources.getImage('playerLife1');
 
@@ -124,14 +132,7 @@ class LevelScreen extends GameScreen {
         // 1. load life images
         this.writeLifeImagesToLevelScreen(ctx);
 
-        // 2. draw current score
-        this.writeTextToCanvas(
-            ctx,
-            `Your score: ${this.score}`,
-            20,
-            new Vector(this.game.canvas.width - 100, 30),
-            "right",
-        );
+        this.scoreField.draw(ctx);
 
         // Draw all the game entities
         this.asteroids.forEach((asteroid) => {
@@ -150,6 +151,8 @@ class LevelScreen extends GameScreen {
      */
     public drawDebugInfo(ctx: CanvasRenderingContext2D) {
         super.drawDebugInfo(ctx);
+        this.scoreField.drawDebugInfo(ctx);
+        
         // Draw all the game entities
         this.asteroids.forEach((asteroid) => {
             asteroid.drawDebugInfo(ctx);

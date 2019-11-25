@@ -1,9 +1,9 @@
-/// <reference path="GameEntity.ts"/>
+/// <reference path="GameImageEntity.ts"/>
 
 /**
  * Class representing a Ship Game Entity.
  */
-class Ship extends GameEntity {
+class Ship extends GameImageEntity {
 
 
     /**

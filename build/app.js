@@ -1,19 +1,10 @@
 class GameEntity {
-    constructor(img, pos, vel = new Vector()) {
-        console.log(img);
-        this.img = img;
+    constructor(pos, vel = new Vector()) {
         this.pos = pos;
         this.vel = vel;
     }
     move(canvas) {
         this.pos = this.pos.add(this.vel);
-    }
-    draw(ctx) {
-        const x = this.pos.x - this.img.width / 2;
-        const y = this.pos.y - this.img.height / 2;
-        if (this.img.naturalWidth > 0) {
-            ctx.drawImage(this.img, x, y);
-        }
     }
     drawDebugInfo(ctx) {
         ctx.save();
@@ -30,7 +21,20 @@ class GameEntity {
         ctx.restore();
     }
 }
-class Asteroid extends GameEntity {
+class GameImageEntity extends GameEntity {
+    constructor(img, pos, vel = new Vector()) {
+        super(pos, vel);
+        this.img = img;
+    }
+    draw(ctx) {
+        const x = this.pos.x - this.img.width / 2;
+        const y = this.pos.y - this.img.height / 2;
+        if (this.img.naturalWidth > 0) {
+            ctx.drawImage(this.img, x, y);
+        }
+    }
+}
+class Asteroid extends GameImageEntity {
     move(canvas) {
         super.move(canvas);
         if (this.pos.x + this.img.width / 2 > canvas.width ||
@@ -41,6 +45,20 @@ class Asteroid extends GameEntity {
             this.pos.y - this.img.height / 2 < 0) {
             this.vel = this.vel.mirror_X();
         }
+    }
+}
+class Button extends GameImageEntity {
+    constructor(label, img, pos) {
+        super(img, pos);
+        this.label = new TextField(new Vector(pos.x, pos.y + 5), label, 20, "black");
+    }
+    draw(ctx) {
+        super.draw(ctx);
+        this.label.draw(ctx);
+    }
+    drawDebugInfo(ctx) {
+        super.drawDebugInfo(ctx);
+        this.label.drawDebugInfo(ctx);
     }
 }
 class Game {
@@ -149,6 +167,7 @@ class LevelScreen extends GameScreen {
         this.shouldSwitchToTitleScreen = false;
         this.lives = 3;
         this.score = 400;
+        this.scoreField = new TextField(new Vector(this.game.canvas.width - 100, 30), `Your score: ${this.score}`, 20);
         this.life = game.resources.getImage('playerLife1');
         this.ship = new Ship(game.resources.getImage("playerShip1"), new Vector(game.canvas.width / 2, game.canvas.height / 2));
         this.initAsteroids(game);
@@ -193,7 +212,7 @@ class LevelScreen extends GameScreen {
     }
     draw(ctx) {
         this.writeLifeImagesToLevelScreen(ctx);
-        this.writeTextToCanvas(ctx, `Your score: ${this.score}`, 20, new Vector(this.game.canvas.width - 100, 30), "right");
+        this.scoreField.draw(ctx);
         this.asteroids.forEach((asteroid) => {
             asteroid.draw(ctx);
         });
@@ -201,6 +220,7 @@ class LevelScreen extends GameScreen {
     }
     drawDebugInfo(ctx) {
         super.drawDebugInfo(ctx);
+        this.scoreField.drawDebugInfo(ctx);
         this.asteroids.forEach((asteroid) => {
             asteroid.drawDebugInfo(ctx);
         });
@@ -220,6 +240,10 @@ class LevelScreen extends GameScreen {
 class LoadingScreen extends GameScreen {
     constructor(game) {
         super(game);
+        this.loadText = new TextField(this.center, "LOADING...", 140);
+        this.initAllGameResources(game);
+    }
+    initAllGameResources(game) {
         game.resources.addImage('button', 'PNG/UI/buttonBlue.png');
         game.resources.addImage('meteor_big1', 'PNG/Meteors/meteorBrown_big1.png');
         game.resources.addImage('meteor_big2', 'PNG/Meteors/meteorBrown_big2.png');
@@ -240,7 +264,11 @@ class LoadingScreen extends GameScreen {
         }
     }
     draw(ctx) {
-        this.writeTextToCanvas(ctx, "LOADING...", 140, this.center);
+        this.loadText.draw(ctx);
+    }
+    drawDebugInfo(ctx) {
+        super.drawDebugInfo(ctx);
+        this.loadText.drawDebugInfo(ctx);
     }
 }
 class ResourceRepository {
@@ -289,7 +317,7 @@ class Scores {
         });
     }
 }
-class Ship extends GameEntity {
+class Ship extends GameImageEntity {
     listen(input) {
         let xVel = 0;
         let yVel = 0;
@@ -330,9 +358,12 @@ class Ship extends GameEntity {
 class StartScreen extends GameScreen {
     constructor(game) {
         super(game);
+        this.components = [];
         this.shouldStartLevel = false;
-        this.button = game.resources.getImage('button');
-        this.asteroid = game.resources.getImage('meteor_big1');
+        this.components.push(new TextField(new Vector(this.center.x, 150), "Asteroids", 140));
+        this.components.push(new TextField(new Vector(this.center.x, this.center.y - 20), "PRESS S TO PLAY", 40));
+        this.components.push(new Button("Press s to play", game.resources.getImage('button'), new Vector(this.center.x, this.center.y + 150)));
+        this.components.push(new Asteroid(game.resources.getImage('meteor_big1'), new Vector(this.center.x, this.center.y), new Vector()));
     }
     listen(input) {
         if (input.isKeyDown(UserInput.KEY_S)) {
@@ -345,26 +376,63 @@ class StartScreen extends GameScreen {
         }
     }
     draw(ctx) {
-        this.writeTextToCanvas(ctx, "Asteroids", 140, new Vector(this.center.x, 150));
-        this.writeTextToCanvas(ctx, "PRESS S TO PLAY", 40, new Vector(this.center.x, this.center.y - 20));
-        const asteroidX = this.center.x - this.asteroid.width / 2;
-        const asteroidY = this.center.y + this.asteroid.height / 2;
-        if (this.asteroid.naturalWidth > 0) {
-            ctx.drawImage(this.asteroid, asteroidX, asteroidY);
-        }
-        const buttonX = this.center.x;
-        const buttonY = this.center.y + 219;
-        if (this.button.naturalWidth > 0) {
-            ctx.drawImage(this.button, buttonX - this.button.width / 2, buttonY);
-            this.writeTextToCanvas(ctx, "Press s to play", 20, new Vector(buttonX, buttonY + 26), "center", "black");
-        }
+        this.components.forEach((component) => {
+            component.draw(ctx);
+        });
+    }
+    drawDebugInfo(ctx) {
+        super.drawDebugInfo(ctx);
+        this.components.forEach((component) => {
+            component.drawDebugInfo(ctx);
+        });
+    }
+}
+class TextField extends GameEntity {
+    constructor(pos, label, fontSize = 20, color = "white", alignment = "center") {
+        super(pos);
+        this.label = label;
+        this.fontSize = fontSize;
+        this.color = color;
+        this.alignment = alignment;
+    }
+    draw(ctx) {
+        ctx.font = `${this.fontSize}px Minecraft`;
+        ctx.fillStyle = this.color;
+        ctx.textAlign = this.alignment;
+        ctx.fillText(this.label, this.pos.x, this.pos.y);
+    }
+    drawDebugInfo(ctx) {
+        super.drawDebugInfo(ctx);
+        ctx.save();
+        ctx.font = `${this.fontSize}px Minecraft`;
+        ctx.fillStyle = this.color;
+        ctx.textAlign = this.alignment;
+        const tm = ctx.measureText(this.label);
+        ctx.strokeStyle = '#ffffb3';
+        ctx.beginPath();
+        ctx.moveTo(this.pos.x - tm.actualBoundingBoxLeft, this.pos.y - tm.actualBoundingBoxAscent);
+        ctx.lineTo(this.pos.x + tm.actualBoundingBoxRight, this.pos.y - tm.actualBoundingBoxAscent);
+        ctx.lineTo(this.pos.x + tm.actualBoundingBoxRight, this.pos.y + tm.actualBoundingBoxDescent);
+        ctx.lineTo(this.pos.x - tm.actualBoundingBoxLeft, this.pos.y + tm.actualBoundingBoxDescent);
+        ctx.lineTo(this.pos.x - tm.actualBoundingBoxLeft, this.pos.y - tm.actualBoundingBoxAscent);
+        ctx.stroke();
+        ctx.restore();
     }
 }
 class TitleScreen extends GameScreen {
     constructor(game) {
         super(game);
+        this.components = [];
         this.shouldSwitchToStartScreen = false;
         this.scores = game.scores;
+        this.components.push(new TextField(new Vector(this.center.x, this.center.y - 100), `${this.game.scores.player} score is ${this.scores.score}`, 80));
+        this.components.push(new TextField(this.center, "HIGHSCORES", 40));
+        let y = this.center.y;
+        for (let i = 0; i < this.scores.highscores.length; i++) {
+            y += 40;
+            const text = `${i + 1}: ${this.scores.highscores[i].playerName} - ${this.scores.highscores[i].score}`;
+            this.components.push(new TextField(new Vector(this.center.x, y), text, 20));
+        }
     }
     listen(input) {
         if (input.isKeyDown(UserInput.KEY_SPACE)) {
@@ -378,15 +446,15 @@ class TitleScreen extends GameScreen {
         }
     }
     draw(ctx) {
-        const x = this.game.canvas.width / 2;
-        let y = this.game.canvas.height / 2;
-        this.writeTextToCanvas(ctx, `${this.game.scores.player} score is ${this.scores.score}`, 80, new Vector(x, y - 100));
-        this.writeTextToCanvas(ctx, "HIGHSCORES", 40, new Vector(x, y));
-        for (let i = 0; i < this.scores.highscores.length; i++) {
-            y += 40;
-            const text = `${i + 1}: ${this.scores.highscores[i].playerName} - ${this.scores.highscores[i].score}`;
-            this.writeTextToCanvas(ctx, text, 20, new Vector(x, y));
-        }
+        this.components.forEach((component) => {
+            component.draw(ctx);
+        });
+    }
+    drawDebugInfo(ctx) {
+        super.drawDebugInfo(ctx);
+        this.components.forEach((component) => {
+            component.drawDebugInfo(ctx);
+        });
     }
 }
 class UserInput {

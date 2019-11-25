@@ -6,6 +6,8 @@
  */
 class TitleScreen extends GameScreen {
 
+    private components: GameEntity[] = [];
+
     private scores: Scores;
 
     private shouldSwitchToStartScreen = false;
@@ -18,6 +20,26 @@ class TitleScreen extends GameScreen {
     public constructor(game: Game) {
         super(game);
         this.scores = game.scores;
+
+        this.components.push(new TextField(
+            new Vector(this.center.x, this.center.y - 100),
+            `${this.game.scores.player} score is ${this.scores.score}`,
+            80,
+        ));
+        this.components.push(new TextField(
+            this.center,
+            "HIGHSCORES", 
+            40
+        ));
+
+        let y = this.center.y;
+        for (let i = 0; i < this.scores.highscores.length; i++) {
+            y += 40;
+            const text = `${i + 1}: ${this.scores.highscores[i].playerName} - ${
+                this.scores.highscores[i].score
+                }`;
+            this.components.push(new TextField(new Vector(this.center.x, y), text, 20));
+        }
     }
 
     /**
@@ -53,27 +75,22 @@ class TitleScreen extends GameScreen {
      * @param ctx the rendering context to draw on
      */
     public draw(ctx: CanvasRenderingContext2D) {
-        const x = this.game.canvas.width / 2;
-        let y = this.game.canvas.height / 2;
+        this.components.forEach((component) => {
+            component.draw(ctx);
+        });
+    }
 
-        // 1. draw your score
-        this.writeTextToCanvas(
-            ctx,
-            `${this.game.scores.player} score is ${this.scores.score}`,
-            80,
-            new Vector(x, y - 100),
-        );
-
-        // 2. draw all highscores
-        this.writeTextToCanvas(ctx, "HIGHSCORES", 40, new Vector(x, y));
-
-        for (let i = 0; i < this.scores.highscores.length; i++) {
-            y += 40;
-            const text = `${i + 1}: ${this.scores.highscores[i].playerName} - ${
-                this.scores.highscores[i].score
-                }`;
-            this.writeTextToCanvas(ctx, text, 20, new Vector(x, y));
-        }
+    /**
+     * Let this screen draw debug info about itself and its gameobjects on the 
+     * given rendering context.
+     * 
+     * @param ctx the rendering context to draw on
+     */
+    public drawDebugInfo(ctx: CanvasRenderingContext2D) {
+        super.drawDebugInfo(ctx);
+        this.components.forEach((component) => {
+            component.drawDebugInfo(ctx);
+        });
     }
 
 }

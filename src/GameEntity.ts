@@ -1,24 +1,22 @@
-class GameEntity {
+/**
+ * Base class of all Game Entities.
+ */
+abstract class GameEntity {
 
     protected pos: Vector;
     protected vel: Vector;
-    protected img: HTMLImageElement;
 
     /**
      * Construct a new Asteroid object.
      *
-     * @param imgUrl url of the image to load
      * @param pos coordinates of its starting position
-     * @param vel the velocity vector
+     * @param vel the velocity vector. This parameter is optional. Default is
+     * an empty Vector(0,0), which represents no speed
      */
     public constructor(
-        img: HTMLImageElement,
         pos: Vector,
         vel: Vector = new Vector(),
     ) {
-        console.log(img);
-        
-        this.img = img;
         this.pos = pos;
         this.vel = vel;
     }
@@ -40,16 +38,7 @@ class GameEntity {
      *
      * @param ctx The CanvasRenderingContext2D to draw to
      */
-    public draw(ctx: CanvasRenderingContext2D) {
-        // We want the center of the image to be the position of this asteroid
-        const x = this.pos.x - this.img.width / 2;
-        const y = this.pos.y - this.img.height / 2;
-
-        // If the image is not yet loaded, don't draw anything
-        if (this.img.naturalWidth > 0) {
-            ctx.drawImage(this.img, x, y);
-        }
-    }
+    public abstract draw(ctx: CanvasRenderingContext2D): void;
 
     /**
      * Let this game entity draw debug info about itself on the correct 

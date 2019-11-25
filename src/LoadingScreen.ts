@@ -7,6 +7,8 @@
  */
 class LoadingScreen extends GameScreen {
 
+    private loadText: TextField;
+
     /**
      * Construct a new LoadingScreen object.
      * 
@@ -14,8 +16,18 @@ class LoadingScreen extends GameScreen {
      */
     public constructor(game: Game) {
         super(game);
-        game.resources.addImage('button', 'PNG/UI/buttonBlue.png');
 
+        this.loadText = new TextField(
+            this.center,
+            "LOADING...",
+            140
+        );
+
+        this.initAllGameResources(game);
+    }
+
+    private initAllGameResources(game: Game) {
+        game.resources.addImage('button', 'PNG/UI/buttonBlue.png');
         game.resources.addImage('meteor_big1', 'PNG/Meteors/meteorBrown_big1.png');
         game.resources.addImage('meteor_big2', 'PNG/Meteors/meteorBrown_big2.png');
         game.resources.addImage('meteor_big3', 'PNG/Meteors/meteorBrown_big3.png');
@@ -26,7 +38,6 @@ class LoadingScreen extends GameScreen {
         game.resources.addImage('meteor_small2', 'PNG/Meteors/meteorBrown_small2.png');
         game.resources.addImage('meteor_tiny1', 'PNG/Meteors/meteorBrown_tiny1.png');
         game.resources.addImage('meteor_tiny2', 'PNG/Meteors/meteorBrown_tiny2.png');
-        
         game.resources.addImage('playerLife1', 'PNG/UI/playerLife1_blue.png');
         game.resources.addImage('playerShip1', 'PNG/playerShip1_blue.png');
     }
@@ -53,7 +64,18 @@ class LoadingScreen extends GameScreen {
      */
     public draw(ctx: CanvasRenderingContext2D) {
         // TODO add nice animation that shows loading progress
-        this.writeTextToCanvas(ctx, "LOADING...", 140, this.center);
+        this.loadText.draw(ctx);
+    }
+
+    /**
+     * Let this screen draw debug info about itself and its gameobjects on the 
+     * given rendering context.
+     * 
+     * @param ctx the rendering context to draw on
+     */
+    public drawDebugInfo(ctx: CanvasRenderingContext2D) {
+        super.drawDebugInfo(ctx);
+        this.loadText.drawDebugInfo(ctx);
     }
 
 }
