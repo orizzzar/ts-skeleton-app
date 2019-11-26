@@ -4,10 +4,11 @@ class Game {
     // Global attributes for canvas
     // Readonly attributes are read-only. They can only be initialized in the constructor
     public readonly canvas: HTMLCanvasElement;
-    public readonly ctx: CanvasRenderingContext2D;
     public readonly resources: ResourceRepository;
-    public readonly input: UserInput;
     public readonly scores: Scores;
+    
+    private readonly ctx: CanvasRenderingContext2D;
+    private readonly input: UserInput;
 
     private debug: boolean = false;
     private debugDown: boolean = false;

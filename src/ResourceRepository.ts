@@ -57,5 +57,4 @@ class ResourceRepository {
         return this.basePath + "/" + name;
     }
 
-
 }

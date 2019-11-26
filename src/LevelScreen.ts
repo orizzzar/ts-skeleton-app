@@ -6,10 +6,9 @@
  */
 class LevelScreen extends GameScreen {
 
-    private lives: number;
     private score: number;
-    private life: HTMLImageElement;
 
+    private lives: GameImageEntity[];
     private asteroids: Asteroid[];
     private ship: Ship;
 
@@ -24,7 +23,21 @@ class LevelScreen extends GameScreen {
      */
     public constructor(game: Game) {
         super(game);
-        this.lives = 3;
+        const life = game.resources.getImage('playerLife1');
+        this.lives = [];
+        let x = 10;
+        const y = life.height - 10;
+        // Start a loop for each life in lives
+        for (let cnt = 0; cnt < 3; cnt++) {
+            // Draw the image at the curren x and y coordinates
+            //ctx.drawImage(this.life, x, y);
+            this.lives.push(new GameImageEntity( 
+                life,
+                new Vector(x, y)))
+            // Increase the x-coordinate for the next image to draw
+            x += life.width + 10;
+        }
+
         this.score = 400;
 
         this.scoreField = new TextField(
@@ -33,7 +46,6 @@ class LevelScreen extends GameScreen {
             20
         );
 
-        this.life = game.resources.getImage('playerLife1');
 
         // Initialize the ship
         this.ship = new Ship(
@@ -130,7 +142,9 @@ class LevelScreen extends GameScreen {
      */
     public draw(ctx: CanvasRenderingContext2D) {
         // 1. load life images
-        this.writeLifeImagesToLevelScreen(ctx);
+        this.lives.forEach((life) => {
+            life.draw(ctx);
+        })
 
         this.scoreField.draw(ctx);
 
@@ -160,26 +174,6 @@ class LevelScreen extends GameScreen {
 
         // Draw the ship
         this.ship.drawDebugInfo(ctx);
-    }
-
-    /**
-     * Uses the loaded life image to remaining lives of the player on the rop
-     * left of the screen.
-     *
-     * @param {HTMLImageElement} img the loaded image object
-     */
-    private writeLifeImagesToLevelScreen(ctx: CanvasRenderingContext2D) {
-        if (this.life.naturalWidth > 0) {
-            let x = 10;
-            const y = this.life.height - 10;
-            // Start a loop for each life in lives
-            for (let life = 0; life < this.lives; life++) {
-                // Draw the image at the curren x and y coordinates
-                ctx.drawImage(this.life, x, y);
-                // Increase the x-coordinate for the next image to draw
-                x += this.life.width + 10;
-            }
-        }
     }
 
 }

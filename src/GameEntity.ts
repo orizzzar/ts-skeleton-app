@@ -6,6 +6,7 @@ abstract class GameEntity {
     protected pos: Vector;
     protected vel: Vector;
 
+
     /**
      * Construct a new Asteroid object.
      *

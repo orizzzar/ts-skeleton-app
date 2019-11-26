@@ -165,10 +165,16 @@ class LevelScreen extends GameScreen {
     constructor(game) {
         super(game);
         this.shouldSwitchToTitleScreen = false;
-        this.lives = 3;
+        const life = game.resources.getImage('playerLife1');
+        this.lives = [];
+        let x = 10;
+        const y = life.height - 10;
+        for (let cnt = 0; cnt < 3; cnt++) {
+            this.lives.push(new GameImageEntity(life, new Vector(x, y)));
+            x += life.width + 10;
+        }
         this.score = 400;
         this.scoreField = new TextField(new Vector(this.game.canvas.width - 100, 30), `Your score: ${this.score}`, 20);
-        this.life = game.resources.getImage('playerLife1');
         this.ship = new Ship(game.resources.getImage("playerShip1"), new Vector(game.canvas.width / 2, game.canvas.height / 2));
         this.initAsteroids(game);
     }
@@ -211,7 +217,9 @@ class LevelScreen extends GameScreen {
         }
     }
     draw(ctx) {
-        this.writeLifeImagesToLevelScreen(ctx);
+        this.lives.forEach((life) => {
+            life.draw(ctx);
+        });
         this.scoreField.draw(ctx);
         this.asteroids.forEach((asteroid) => {
             asteroid.draw(ctx);
@@ -225,16 +233,6 @@ class LevelScreen extends GameScreen {
             asteroid.drawDebugInfo(ctx);
         });
         this.ship.drawDebugInfo(ctx);
-    }
-    writeLifeImagesToLevelScreen(ctx) {
-        if (this.life.naturalWidth > 0) {
-            let x = 10;
-            const y = this.life.height - 10;
-            for (let life = 0; life < this.lives; life++) {
-                ctx.drawImage(this.life, x, y);
-                x += this.life.width + 10;
-            }
-        }
     }
 }
 class LoadingScreen extends GameScreen {
