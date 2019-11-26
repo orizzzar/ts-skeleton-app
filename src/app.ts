@@ -2,10 +2,11 @@
  * TODO
  * 1. refactor the Fruit interface
  * 2. make the kiwi and apple smaller
- * 3. spawn within the screen borders
+ * 3. [done] spawn within the screen borders
  * 4. for debug purpose add start and stop animation based on key's
  * 5. add Chrome support (for now only firefox seem to work)
  * 6. click detection is not properly set up
+ * 7. add current score to the screen
  */
 
 interface Fruit {
@@ -57,7 +58,7 @@ class Game {
     this.draw();
     this.counter++;
 
-    // for loop to delete an element from the fruit array if it is nog alieve anymore
+    // for loop to delete an element from the fruit array if it is not alive anymore
     for (let i = 0; i < this.fruits.length; i++) {
       if (this.counter >= this.fruits[i].alive) {
         this.fruits.splice(i, 1); // remove an element from the kiwi array
@@ -126,13 +127,19 @@ class Game {
       // draw each fruits
       this.fruits.forEach(element => {
         console.log("there is an element");
-        // TODO: keep the image element within the borders of the screen
+        // Ternary operator to check if starting position are not negative.
         this.ctx.drawImage(
           element.image,
-          element.xPos - element.image.width,
-          element.yPos - element.image.height
+          element.xPos - element.image.width < 0 ? 0 : element.xPos - element.image.width,
+          element.yPos - element.image.height < 0 ? 0 : element.xPos - element.image.height
         );
       });
+      this.writeTextToCanvas(
+        `Score is: ${this.score}`,
+        40,
+        100,
+        40
+      );
     } else {
       //if there are no elements in the fruit array left draw game over.
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

@@ -55,8 +55,9 @@ class Game {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.fruits.forEach(element => {
                 console.log("there is an element");
-                this.ctx.drawImage(element.image, element.xPos - element.image.width, element.yPos - element.image.height);
+                this.ctx.drawImage(element.image, element.xPos - element.image.width < 0 ? 0 : element.xPos - element.image.width, element.yPos - element.image.height < 0 ? 0 : element.xPos - element.image.height);
             });
+            this.writeTextToCanvas(`Score is: ${this.score}`, 40, 100, 40);
         }
         else {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
