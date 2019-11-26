@@ -4,6 +4,8 @@
  * 2. make the kiwi and apple smaller
  * 3. spawn within the screen borders
  * 4. for debug purpose add start and stop animation based on key's
+ * 5. add Chrome support (for now only firefox seem to work)
+ * 6. click detection is not properly set up
  */
 
 interface Fruit {
