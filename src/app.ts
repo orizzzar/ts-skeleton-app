@@ -1,12 +1,12 @@
 /**
  * TODO
  * 1. refactor the Fruit interface
- * 2. make the kiwi and apple smaller
+ * 2. [done] make the kiwi and apple smaller
  * 3. [done] spawn within the screen borders
  * 4. for debug purpose add start and stop animation based on key's
- * 5. add Chrome support (for now only firefox seem to work)
- * 6. click detection is not properly set up
- * 7. add current score to the screen
+ * 5. [done] add Chrome support (for now only firefox seem to work)
+ * 6. [done] click detection is not properly set up
+ * 7. [done[ add current score to the screen
  */
 
 interface Fruit {
@@ -37,11 +37,11 @@ class Game {
 
     // add some kiwis
     for (let index = 0; index < this.randomNumber(3, 10); index++) {
-      this.fruits.push(this.fruitFactory("./assets/kiwi-small.svg"));
+      this.fruits.push(this.fruitFactory("./assets/kiwi-sm.png"));
     }
 
     // add an apple
-    this.fruits.push(this.fruitFactory("./assets/apple.svg"));
+    this.fruits.push(this.fruitFactory("./assets/apple-sm.png"));
 
     // add an mouse event
     document.addEventListener("click", this.mouseHandler);
@@ -65,8 +65,7 @@ class Game {
       }
     }
 
-    console.log(this.fruits);
-    // in the first loop no images where loaded
+    // in the first loop no images are loaded
     requestAnimationFrame(this.loop);
   };
 
@@ -78,8 +77,8 @@ class Game {
   private fruitFactory(source: string): Fruit {
     return {
       alive: this.randomNumber(0, 350),
-      xPos: this.randomNumber(0, this.canvas.width),
-      yPos: this.randomNumber(0, this.canvas.height),
+      xPos: this.randomNumber(0, this.canvas.width - 200),
+      yPos: this.randomNumber(0, this.canvas.height - 200),
       image: this.loadNewImage(source)
     };
   }
@@ -117,23 +116,24 @@ class Game {
   }
 
   /**
-   * Method to draw a fruit to the canvas
+   * Method to draw fruit to the canvas
    */
   private draw() {
     // when there are elements in the fruit array
     if (this.fruits.length != 0) {
       // clear the canvas
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      // draw each fruits
+      // draw each fruit
       this.fruits.forEach(element => {
         console.log("there is an element");
         // Ternary operator to check if starting position are not negative.
         this.ctx.drawImage(
           element.image,
-          element.xPos - element.image.width < 0 ? 0 : element.xPos - element.image.width,
-          element.yPos - element.image.height < 0 ? 0 : element.xPos - element.image.height
+          element.xPos,
+          element.yPos
         );
       });
+      //write the current score
       this.writeTextToCanvas(
         `Score is: ${this.score}`,
         40,
@@ -141,7 +141,7 @@ class Game {
         40
       );
     } else {
-      //if there are no elements in the fruit array left draw game over.
+      // if there are no elements in the fruit array left draw game over.
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.writeTextToCanvas(
         "Game over",
@@ -149,6 +149,7 @@ class Game {
         this.canvas.width / 2,
         this.canvas.height / 2
       );
+      // draw the end score
       this.writeTextToCanvas(
         `Uw score is: ${this.score}`,
         40,
@@ -191,7 +192,7 @@ class Game {
   }
 }
 
-// This will get an HTML element. I cast this element in de appropriate type using <>
+// Initialize the game after the DOM is loaded.
 let init = () => {
   const KiwiWars = new Game(
     document.getElementById("canvas") as HTMLCanvasElement

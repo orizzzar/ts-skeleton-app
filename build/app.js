@@ -9,7 +9,6 @@ class Game {
                     this.fruits.splice(i, 1);
                 }
             }
-            console.log(this.fruits);
             requestAnimationFrame(this.loop);
         };
         this.mouseHandler = (event) => {
@@ -29,9 +28,9 @@ class Game {
         this.canvas.height = window.innerHeight;
         this.ctx = this.canvas.getContext("2d");
         for (let index = 0; index < this.randomNumber(3, 10); index++) {
-            this.fruits.push(this.fruitFactory("./assets/kiwi-small.svg"));
+            this.fruits.push(this.fruitFactory("./assets/kiwi-sm.png"));
         }
-        this.fruits.push(this.fruitFactory("./assets/apple.svg"));
+        this.fruits.push(this.fruitFactory("./assets/apple-sm.png"));
         document.addEventListener("click", this.mouseHandler);
         this.counter = 0;
         this.score = 10;
@@ -40,8 +39,8 @@ class Game {
     fruitFactory(source) {
         return {
             alive: this.randomNumber(0, 350),
-            xPos: this.randomNumber(0, this.canvas.width),
-            yPos: this.randomNumber(0, this.canvas.height),
+            xPos: this.randomNumber(0, this.canvas.width - 200),
+            yPos: this.randomNumber(0, this.canvas.height - 200),
             image: this.loadNewImage(source)
         };
     }
@@ -55,7 +54,7 @@ class Game {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.fruits.forEach(element => {
                 console.log("there is an element");
-                this.ctx.drawImage(element.image, element.xPos - element.image.width < 0 ? 0 : element.xPos - element.image.width, element.yPos - element.image.height < 0 ? 0 : element.xPos - element.image.height);
+                this.ctx.drawImage(element.image, element.xPos, element.yPos);
             });
             this.writeTextToCanvas(`Score is: ${this.score}`, 40, 100, 40);
         }
