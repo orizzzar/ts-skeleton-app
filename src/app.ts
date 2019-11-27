@@ -1,23 +1,23 @@
 /**
  * TODO
- * 1. refactor the Fruit interface
+ * 1. [done] refactor the Fruit interface
  * 2. [done] make the kiwi and apple smaller
  * 3. [done] spawn within the screen borders
- * 4. for debug purpose add start and stop animation based on key's
+ * 4. for debug purpose add start and stop animation based on key's //https://css-tricks.com/using-requestanimationframe/
  * 5. [done] add Chrome support (for now only firefox seem to work)
  * 6. [done] click detection is not properly set up
  * 7. [done[ add current score to the screen
+ * 8. [done] if apple is clicked score-- and if kiwi is clicked score++
  */
 
-interface Fruit {
-  alive: number;
-  xPos: number;
-  yPos: number;
-  image: HTMLImageElement;
-}
-//https://css-tricks.com/using-requestanimationframe/
+// interface Fruit {
+//   alive: number;
+//   xPos: number;
+//   yPos: number;
+//   image: HTMLImageElement;
+// }
 class Game {
-  private fruits: Fruit[] = [];
+  private fruits: any[];
   private readonly canvas: HTMLCanvasElement;
   private readonly ctx: CanvasRenderingContext2D;
   private counter: number;
@@ -35,20 +35,22 @@ class Game {
     // Set the context of the canvas
     this.ctx = this.canvas.getContext("2d");
 
+    this.fruits = [];
+
     // add some kiwis
     for (let index = 0; index < this.randomNumber(3, 10); index++) {
-      this.fruits.push(this.fruitFactory("./assets/kiwi-sm.png"));
+      this.fruits.push(this.fruitFactory("./assets/kiwi-sm.png", 'kiwi'));
     }
 
     // add an apple
-    this.fruits.push(this.fruitFactory("./assets/apple-sm.png"));
+    this.fruits.push(this.fruitFactory("./assets/apple-sm.png", 'apple'));
 
     // add an mouse event
     document.addEventListener("click", this.mouseHandler);
 
     // set the counter to 0
     this.counter = 0;
-    this.score = 10;
+    this.score = 0;
     this.loop();
   }
   /**
@@ -73,9 +75,17 @@ class Game {
    * Method to create a Fruit object
    * @param source - string for image url
    * @return Fruit - returns a fruit object
+   * 
+   * The fruit object has the following attributes:
+   * - name of the fuit object
+   * - alive: amount of seconds a fruit object is visible on the screen (based on counter and frame per seconds)
+   * - xPos: x position on the canvas
+   * - yPos: y position on the canvas
+   * - image: an HTMLimageElement of the kiwi or apple
    */
-  private fruitFactory(source: string): Fruit {
+  private fruitFactory(source: string, name: string): any {
     return {
+      name: name,
       alive: this.randomNumber(0, 350),
       xPos: this.randomNumber(0, this.canvas.width - 200),
       yPos: this.randomNumber(0, this.canvas.height - 200),
@@ -98,8 +108,14 @@ class Game {
         event.clientY >= element.yPos &&
         event.clientY <= element.yPos + element.image.height
       ) {
-        console.error("target");
-        this.score++;
+        //check to see if element is an apple or an kiwi
+        //if(element.)
+        if(element.name == 'kiwi' ){
+          this.score++;
+        }
+        else if (element.name == 'apple'){
+          this.score--;
+        }
       }
     });
   };
@@ -125,7 +141,6 @@ class Game {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       // draw each fruit
       this.fruits.forEach(element => {
-        console.log("there is an element");
         // Ternary operator to check if starting position are not negative.
         this.ctx.drawImage(
           element.image,

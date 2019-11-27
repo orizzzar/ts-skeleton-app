@@ -13,11 +13,11 @@ In dit spel probeert de speler op een kiwi te klikken voordat de kiwi is verdwen
 
 ## Spelregels
 
-- er is 1 speler
-- de kiwis en appel verdwijnen na een aantal seconden.
-- een appel kost 1 punt
-- een kiwi levert 1 punt op
-- als de appels en kiwi zijn verdwenen dan is het spel afgelopen en wordt de uiteindelijk score getoond
+* er is 1 speler
+* de kiwis en appel verdwijnen na een aantal seconden.
+* een appel kost 1 punt
+* een kiwi levert 1 punt op
+* als de appels en kiwi zijn verdwenen dan is het spel afgelopen en wordt de uiteindelijk score getoond
 
 ## Opdracht
 
@@ -25,18 +25,24 @@ Gegeven is een werkende uitwerking in het bestand app.ts. Helaas werkt het allee
 
 ## Tips
 
-- Maak als eerste een class diagram.
-- Werk steeds 1 class per keer uit en zie of alles nog werkt.
+* Maak als eerste een class diagram.
+* Werk steeds 1 class per keer uit en zie of alles nog werkt.
+
+## Uitdagingen
+
+* Probeer de kiwi te animeren
+* Wanneer je een kiwi klikt moet hij direct uit de fruit array worden gehaald.
+* Probeer de appel zelf te laten bewegen
+* Probeer er voor te zorgen dat kiwi's niet over elkaar heen worden gespawned.
 
 ## Inleveren
 
 Je levert een zip-bestand in (geen rar oid) met daarin de volgende mappen en bestanden. Als je hier niet aan voldoet wordt het niet nagekeken.
 
-- index.html
-- (map) src: met daarin in source bestanden
-- (map) assets: alle assets van de game
-- (map) build: de gecompileerde TS in JS format
-
+* index.html
+* (map) src: met daarin in source bestanden
+* (map) assets: alle assets van de game
+* (map) build: de gecompileerde TS in JS format
 
 ## Nakijkcriteria
 
@@ -48,8 +54,8 @@ Je levert een zip-bestand in (geen rar oid) met daarin de volgende mappen en bes
 Nr | Leeropbrengsten | Cesuur
 --- | --- | ---
 1 | past op een consistente manier indentation in de code toe | 0,2
-2 | voorziet de code volgens een standaard afspraak (bijvoorbeeld JSDocs) code van commentaar | 0,4
-3 | geeft consistent namen aan variabelen, classes en functies | 0,4
+2 | voorziet de code volgens een standaard afspraak (AirBnB styleguide) code van commentaar | 0,4
+3 | geeft consistent namen aan variabelen, classes en functies (AirBnB styleguide) | 0,4
 4 | structureert de code in classes met attributen en methoden | 2
 5 | past overerving in de code toe om herhaling te voorkomen | 2
 6 | geeft types van attributen, parameters en returnwaarden expliciet aan | 2

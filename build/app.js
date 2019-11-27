@@ -1,6 +1,5 @@
 class Game {
     constructor(canvasId) {
-        this.fruits = [];
         this.loop = () => {
             this.draw();
             this.counter++;
@@ -18,8 +17,12 @@ class Game {
                     event.clientX < element.xPos + element.image.width &&
                     event.clientY >= element.yPos &&
                     event.clientY <= element.yPos + element.image.height) {
-                    console.error("target");
-                    this.score++;
+                    if (element.name == 'kiwi') {
+                        this.score++;
+                    }
+                    else if (element.name == 'apple') {
+                        this.score--;
+                    }
                 }
             });
         };
@@ -27,17 +30,19 @@ class Game {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         this.ctx = this.canvas.getContext("2d");
+        this.fruits = [];
         for (let index = 0; index < this.randomNumber(3, 10); index++) {
-            this.fruits.push(this.fruitFactory("./assets/kiwi-sm.png"));
+            this.fruits.push(this.fruitFactory("./assets/kiwi-sm.png", 'kiwi'));
         }
-        this.fruits.push(this.fruitFactory("./assets/apple-sm.png"));
+        this.fruits.push(this.fruitFactory("./assets/apple-sm.png", 'apple'));
         document.addEventListener("click", this.mouseHandler);
         this.counter = 0;
-        this.score = 10;
+        this.score = 0;
         this.loop();
     }
-    fruitFactory(source) {
+    fruitFactory(source, name) {
         return {
+            name: name,
             alive: this.randomNumber(0, 350),
             xPos: this.randomNumber(0, this.canvas.width - 200),
             yPos: this.randomNumber(0, this.canvas.height - 200),
@@ -53,7 +58,6 @@ class Game {
         if (this.fruits.length != 0) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.fruits.forEach(element => {
-                console.log("there is an element");
                 this.ctx.drawImage(element.image, element.xPos, element.yPos);
             });
             this.writeTextToCanvas(`Score is: ${this.score}`, 40, 100, 40);
