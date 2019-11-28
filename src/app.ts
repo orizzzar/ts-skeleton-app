@@ -1,26 +1,9 @@
-/**
- * TODO
- * 1. [done] refactor the Fruit interface
- * 2. [done] make the kiwi and apple smaller
- * 3. [done] spawn within the screen borders
- * 4. for debug purpose add start and stop animation based on key's //https://css-tricks.com/using-requestanimationframe/
- * 5. [done] add Chrome support (for now only firefox seem to work)
- * 6. [done] click detection is not properly set up
- * 7. [done[ add current score to the screen
- * 8. [done] if apple is clicked score-- and if kiwi is clicked score++
- */
-
-// interface Fruit {
-//   alive: number;
-//   xPos: number;
-//   yPos: number;
-//   image: HTMLImageElement;
-// }
 class Game {
-  private fruits: any[];
+  private kiwis: any[];
+  private apples: any[];
   private readonly canvas: HTMLCanvasElement;
   private readonly ctx: CanvasRenderingContext2D;
-  private counter: number;
+  private counter: number; // number of times the loop is run through
   private score: number;
 
   /**
@@ -32,64 +15,77 @@ class Game {
     this.canvas = canvasId;
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
+
     // Set the context of the canvas
     this.ctx = this.canvas.getContext("2d");
 
-    this.fruits = [];
+    // create an empty kiwi and apple array
+    this.kiwis = [];
+    this.apples = [];
 
-    // add some kiwis
+    // add some kiwis to the kiwi array
     for (let index = 0; index < this.randomNumber(3, 10); index++) {
-      this.fruits.push(this.fruitFactory("./assets/kiwi-sm.png", 'kiwi'));
+      this.kiwis.push(this.fruitFactory("./assets/kiwi-sm.png", "kiwi"));
     }
 
-    // add an apple
-    this.fruits.push(this.fruitFactory("./assets/apple-sm.png", 'apple'));
+    // add some apples to the apple array
+    for (let index = 0; index < this.randomNumber(1, 3); index++) {
+      this.apples.push(this.fruitFactory("./assets/apple-sm.png", "apple"));
+    }
 
-    // add an mouse event
+    // add an mouse event listener
     document.addEventListener("click", this.mouseHandler);
 
-    // set the counter to 0
+    // set the counter and score to 0
     this.counter = 0;
     this.score = 0;
+    // run re loop
     this.loop();
   }
+
   /**
    * Method for the Game Loop
    */
   private loop = () => {
+    // draw al game items
     this.draw();
+    // move the apples
+    this.move();
+    // raise the counter with 1
     this.counter++;
 
     // for loop to delete an element from the fruit array if it is not alive anymore
-    for (let i = 0; i < this.fruits.length; i++) {
-      if (this.counter >= this.fruits[i].alive) {
-        this.fruits.splice(i, 1); // remove an element from the kiwi array
+    for (let i = 0; i < this.kiwis.length; i++) {
+      if (this.counter >= this.kiwis[i].lifespan) {
+        this.kiwis.splice(i, 1); // remove an element from the kiwi array
       }
     }
-
-    // in the first loop no images are loaded
     requestAnimationFrame(this.loop);
   };
 
   /**
-   * Method to create a Fruit object
-   * @param source - string for image url
-   * @return Fruit - returns a fruit object
-   * 
-   * The fruit object has the following attributes:
-   * - name of the fuit object
-   * - alive: amount of seconds a fruit object is visible on the screen (based on counter and frame per seconds)
+   * Method to create a kiwi or apple object
+   * @param {string} source - string for image url
+   * @return {any} Kiwi or apple - returns an kiwi or apple object
+   *
+   * The kiwi or apple object has the following attributes:
+   * - name of the fuit object, name is kiwi or apple
+   * - lifespan: amount of seconds a fruit object is visible on the screen (based on counter and frame per seconds)
    * - xPos: x position on the canvas
    * - yPos: y position on the canvas
    * - image: an HTMLimageElement of the kiwi or apple
+   * - xVel: velocity on the x-axis
+   * - yVel: velocity on the y-axis
    */
   private fruitFactory(source: string, name: string): any {
     return {
       name: name,
-      alive: this.randomNumber(0, 350),
+      lifespan: this.randomNumber(0, 350),
       xPos: this.randomNumber(0, this.canvas.width - 200),
       yPos: this.randomNumber(0, this.canvas.height - 200),
-      image: this.loadNewImage(source)
+      image: this.loadNewImage(source),
+      xVel: 5,
+      yVel: 6
     };
   }
 
@@ -100,29 +96,34 @@ class Game {
   private mouseHandler = (event: MouseEvent) => {
     console.log(`xPos ${event.clientX}, yPos ${event.clientY}`);
 
-    // simple click detection
-    this.fruits.forEach(element => {
+    // simple click detection for kiwi's
+    this.kiwis.forEach(kiwi => {
       if (
-        event.clientX >= element.xPos &&
-        event.clientX < element.xPos + element.image.width &&
-        event.clientY >= element.yPos &&
-        event.clientY <= element.yPos + element.image.height
+        event.clientX >= kiwi.xPos &&
+        event.clientX < kiwi.xPos + kiwi.image.width &&
+        event.clientY >= kiwi.yPos &&
+        event.clientY <= kiwi.yPos + kiwi.image.height
       ) {
-        //check to see if element is an apple or an kiwi
-        //if(element.)
-        if(element.name == 'kiwi' ){
-          this.score++;
-        }
-        else if (element.name == 'apple'){
-          this.score--;
-        }
+        this.score++;
+      }
+    });
+
+    // simple click detection for apples
+    this.apples.forEach(apple => {
+      if (
+        event.clientX >= apple.xPos &&
+        event.clientX < apple.xPos + apple.image.width &&
+        event.clientY >= apple.yPos &&
+        event.clientY <= apple.yPos + apple.image.height
+      ) {
+        this.score--;
       }
     });
   };
 
   /**
    * Method to load an image
-   * @param source
+   * @param {HTMLImageElement} source
    * @return HTMLImageElement - returns an image
    */
   private loadNewImage(source: string): HTMLImageElement {
@@ -132,31 +133,28 @@ class Game {
   }
 
   /**
-   * Method to draw fruit to the canvas
+   * Method to draw fruit (kiwi or apple) to the canvas
    */
   private draw() {
-    // when there are elements in the fruit array
-    if (this.fruits.length != 0) {
+    // when there are elements in the kiwi array
+    if (this.kiwis.length != 0) {
       // clear the canvas
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-      // draw each fruit
-      this.fruits.forEach(element => {
-        // Ternary operator to check if starting position are not negative.
-        this.ctx.drawImage(
-          element.image,
-          element.xPos,
-          element.yPos
-        );
+
+      //draw some apples
+      this.apples.forEach(apple => {
+        this.ctx.drawImage(apple.image, apple.xPos, apple.yPos);
       });
+
+      // draw some kiwis
+      this.kiwis.forEach(kiwi => {
+        this.ctx.drawImage(kiwi.image, kiwi.xPos, kiwi.yPos);
+      });
+
       //write the current score
-      this.writeTextToCanvas(
-        `Score is: ${this.score}`,
-        40,
-        100,
-        40
-      );
+      this.writeTextToCanvas(`Score is: ${this.score}`, 40, 100, 40);
     } else {
-      // if there are no elements in the fruit array left draw game over.
+      // if there are no elements in the kiwi array left draw game over.
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.writeTextToCanvas(
         "Game over",
@@ -172,6 +170,30 @@ class Game {
         this.canvas.height / 2 + 50
       );
     }
+  }
+ 
+  /**
+   * Method to move an apple
+   */
+  public move() {
+    //check to see if the apple is within the screen
+    this.apples.forEach(apple => {
+      console.log(apple);
+      if (
+        apple.xPos + apple.image.width > this.canvas.width ||
+        apple.xPos < 0
+      ) {
+        apple.xVel = -apple.xVel;
+      }
+      if (
+        apple.yPos + apple.image.height > this.canvas.height ||
+        apple.yPos < 0
+      ) {
+        apple.yVel = -apple.yVel;
+      }
+      apple.xPos += apple.xVel;
+      apple.yPos += apple.yVel;
+    });
   }
 
   /**
