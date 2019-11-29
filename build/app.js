@@ -1,32 +1,97 @@
+class Fruit {
+    constructor(name, lifespan, xPos, yPos, imageSource) {
+        this._lifespan = lifespan;
+        this._name = name;
+        this._xPos = xPos;
+        this._yPos = yPos;
+        this._image = this.loadNewImage(imageSource);
+    }
+    get lifespan() {
+        return this._lifespan;
+    }
+    get name() {
+        return this._name;
+    }
+    get xPos() {
+        return this._xPos;
+    }
+    get yPos() {
+        return this._yPos;
+    }
+    get image() {
+        return this._image;
+    }
+    draw() { }
+    move(canvas) {
+        console.log('moving some fruit');
+    }
+    loadNewImage(source) {
+        const img = new Image();
+        img.src = source;
+        return img;
+    }
+}
+class Apple extends Fruit {
+    constructor(name, lifespan, xPos, yPos, imageSource, xVel, yVel) {
+        super(name, lifespan, xPos, yPos, imageSource);
+        this._xVel = xVel;
+        this._yVel = yVel;
+    }
+    get xVel() {
+        return this._xVel;
+    }
+    get yVel() {
+        return this._yVel;
+    }
+    draw() { }
+    move(canvas) {
+        if (this.xPos + this.image.width > canvas.width || this.xPos < 0) {
+            this._xVel = -this._xVel;
+        }
+        if (this.yPos + this.image.height > canvas.height || this.yPos < 0) {
+            this._yVel = -this._yVel;
+        }
+        this._xPos += this._xVel;
+        this._yPos += this._yVel;
+    }
+}
+class Kiwi extends Fruit {
+    constructor(name, lifespan, xPos, yPos, imageSource) {
+        super(name, lifespan, xPos, yPos, imageSource);
+    }
+    draw() { }
+    move() {
+        console.log("moving");
+    }
+}
 class Game {
     constructor(canvasId) {
         this.loop = () => {
             this.draw();
             this.move();
             this.counter++;
-            for (let i = 0; i < this.kiwis.length; i++) {
-                if (this.counter >= this.kiwis[i].lifespan) {
-                    this.kiwis.splice(i, 1);
+            for (let i = 0; i < this.fruit.length; i++) {
+                if (this.fruit[i].name == "Kiwi") {
+                    if (this.counter >= this.fruit[i].lifespan) {
+                        this.fruit.splice(i, 1);
+                    }
                 }
             }
             requestAnimationFrame(this.loop);
         };
         this.mouseHandler = (event) => {
             console.log(`xPos ${event.clientX}, yPos ${event.clientY}`);
-            this.kiwis.forEach(kiwi => {
-                if (event.clientX >= kiwi.xPos &&
-                    event.clientX < kiwi.xPos + kiwi.image.width &&
-                    event.clientY >= kiwi.yPos &&
-                    event.clientY <= kiwi.yPos + kiwi.image.height) {
-                    this.score++;
-                }
-            });
-            this.apples.forEach(apple => {
-                if (event.clientX >= apple.xPos &&
-                    event.clientX < apple.xPos + apple.image.width &&
-                    event.clientY >= apple.yPos &&
-                    event.clientY <= apple.yPos + apple.image.height) {
-                    this.score--;
+            this.fruit.forEach(fruit => {
+                if (event.clientX >= fruit.xPos &&
+                    event.clientX < fruit.xPos + fruit.image.width &&
+                    event.clientY >= fruit.yPos &&
+                    event.clientY <= fruit.yPos + fruit.image.height) {
+                    if (fruit.name == "Kiwi") {
+                        this.score++;
+                    }
+                    else {
+                        this.score--;
+                    }
                 }
             });
         };
@@ -34,43 +99,23 @@ class Game {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
         this.ctx = this.canvas.getContext("2d");
-        this.kiwis = [];
-        this.apples = [];
+        this.fruit = [];
         for (let index = 0; index < this.randomNumber(3, 10); index++) {
-            this.kiwis.push(this.fruitFactory("./assets/kiwi-sm.png", "kiwi"));
+            this.fruit.push(new Kiwi("Kiwi", this.randomNumber(0, 350), this.randomNumber(0, this.canvas.width - 200), this.randomNumber(0, this.canvas.height - 200), "./assets/kiwi-sm.png"));
         }
         for (let index = 0; index < this.randomNumber(1, 3); index++) {
-            this.apples.push(this.fruitFactory("./assets/apple-sm.png", "apple"));
+            this.fruit.push(new Apple("Apple", this.randomNumber(0, 350), this.randomNumber(0, this.canvas.width - 200), this.randomNumber(0, this.canvas.height - 200), "./assets/apple-sm.png", 4, 5));
         }
         document.addEventListener("click", this.mouseHandler);
         this.counter = 0;
         this.score = 0;
         this.loop();
     }
-    fruitFactory(source, name) {
-        return {
-            name: name,
-            lifespan: this.randomNumber(0, 350),
-            xPos: this.randomNumber(0, this.canvas.width - 200),
-            yPos: this.randomNumber(0, this.canvas.height - 200),
-            image: this.loadNewImage(source),
-            xVel: 5,
-            yVel: 6
-        };
-    }
-    loadNewImage(source) {
-        const img = new Image();
-        img.src = source;
-        return img;
-    }
     draw() {
-        if (this.kiwis.length != 0) {
+        if (this.fruit.filter(fruit => fruit.name == "Kiwi").length != 0) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.apples.forEach(apple => {
-                this.ctx.drawImage(apple.image, apple.xPos, apple.yPos);
-            });
-            this.kiwis.forEach(kiwi => {
-                this.ctx.drawImage(kiwi.image, kiwi.xPos, kiwi.yPos);
+            this.fruit.forEach(fruit => {
+                this.ctx.drawImage(fruit.image, fruit.xPos, fruit.yPos);
             });
             this.writeTextToCanvas(`Score is: ${this.score}`, 40, 100, 40);
         }
@@ -81,19 +126,8 @@ class Game {
         }
     }
     move() {
-        this.apples.forEach(apple => {
-            console.log(apple);
-            if (apple.xPos + apple.image.width > this.canvas.width ||
-                apple.xPos < 0) {
-                apple.xVel = -apple.xVel;
-            }
-            if (apple.yPos + apple.image.height > this.canvas.height ||
-                apple.yPos < 0) {
-                apple.yVel = -apple.yVel;
-            }
-            apple.xPos += apple.xVel;
-            apple.yPos += apple.yVel;
-        });
+        const apples = this.fruit.filter(fruit => fruit.name == 'Apple');
+        apples.forEach(apple => apple.move(this.canvas));
     }
     writeTextToCanvas(text, fontSize = 20, xCoordinate, yCoordinate, alignment = "center", color = "red") {
         this.ctx.font = `${fontSize}px Minecraft`;
