@@ -37,8 +37,6 @@ class Apple extends Fruit {
     return this._yVel;
   }
 
-  public draw() {}
-
   /**
    * Method to move an apple
    */

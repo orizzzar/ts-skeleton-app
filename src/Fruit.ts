@@ -49,7 +49,10 @@ class Fruit {
     return this._image;
   }
 
-  public draw() {}
+  public draw(ctx: CanvasRenderingContext2D) {
+    ctx.drawImage(this._image, this._xPos, this._yPos);
+  }
+  
   public move(canvas:HTMLCanvasElement) {
       console.log('moving some fruit');
   }

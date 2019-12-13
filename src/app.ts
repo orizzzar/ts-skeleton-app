@@ -187,8 +187,11 @@ class Game {
       // });
 
       // draw some fruit
+      // this.fruit.forEach(fruit => {
+      //   this.ctx.drawImage(fruit.image, fruit.xPos, fruit.yPos);
+      // });
       this.fruit.forEach(fruit => {
-        this.ctx.drawImage(fruit.image, fruit.xPos, fruit.yPos);
+        fruit.draw(this.ctx);
       });
 
       //write the current score

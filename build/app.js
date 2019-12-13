@@ -21,7 +21,9 @@ class Fruit {
     get image() {
         return this._image;
     }
-    draw() { }
+    draw(ctx) {
+        ctx.drawImage(this._image, this._xPos, this._yPos);
+    }
     move(canvas) {
         console.log('moving some fruit');
     }
@@ -43,7 +45,6 @@ class Apple extends Fruit {
     get yVel() {
         return this._yVel;
     }
-    draw() { }
     move(canvas) {
         if (this.xPos + this.image.width > canvas.width || this.xPos < 0) {
             this._xVel = -this._xVel;
@@ -58,10 +59,6 @@ class Apple extends Fruit {
 class Kiwi extends Fruit {
     constructor(name, lifespan, xPos, yPos, imageSource) {
         super(name, lifespan, xPos, yPos, imageSource);
-    }
-    draw() { }
-    move() {
-        console.log("moving");
     }
 }
 class Game {
@@ -115,7 +112,7 @@ class Game {
         if (this.fruit.filter(fruit => fruit.name == "Kiwi").length != 0) {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.fruit.forEach(fruit => {
-                this.ctx.drawImage(fruit.image, fruit.xPos, fruit.yPos);
+                fruit.draw(this.ctx);
             });
             this.writeTextToCanvas(`Score is: ${this.score}`, 40, 100, 40);
         }

@@ -19,8 +19,4 @@ class Kiwi extends Fruit {
     super(name, lifespan, xPos, yPos, imageSource);
   }
 
-  public draw() {}
-  public move() {
-    console.log("moving");
-  }
 }
