@@ -6,24 +6,20 @@ class Apple extends Fruit {
   
   /**
    * Constructor to construct an Apple object
-   * @param {string} name - name of the Apple object ('apple)
    * @param {number} lifespan - lifespan of the Apple object
    * @param {number} xPos - x coordinates on canvas
    * @param {number} yPos - y coordinates on canvas
-   * @param {string} imageSource - image source url
    * @param {number} xVel - velocity on the x-axis
    * @param {number} yVel - verlocity on the y-axis
    */
   public constructor(
-    name: string,
     lifespan: number,
     xPos: number,
     yPos: number,
-    imageSource: string,
     xVel: number,
     yVel: number
   ) {
-    super(name, lifespan, xPos, yPos, imageSource);
+    super("Apple", lifespan, -1, xPos, yPos, "./assets/apple-sm.png");
     this._xVel = xVel;
     this._yVel = yVel;
   }
@@ -38,17 +34,19 @@ class Apple extends Fruit {
   }
 
   /**
-   * Method to move an apple
+   * Let this Apple move itself about the canvas
+   * 
+   * @param canvas the canvas to move on
    */
   public move(canvas:HTMLCanvasElement) {
-    //check to see if the apple is within the screen
-    // moving an apple
+    //check to see if this apple is within the screen
     if (this.xPos + this.image.width > canvas.width || this.xPos < 0) {
       this._xVel = -this._xVel;
     }
     if (this.yPos + this.image.height > canvas.height || this.yPos < 0) {
       this._yVel = -this._yVel;
     }
+    // moving this apple
     this._xPos += this._xVel;
     this._yPos += this._yVel;
   }

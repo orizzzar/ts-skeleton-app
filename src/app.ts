@@ -33,11 +33,9 @@ class Game {
     for (let index = 0; index < this.randomNumber(3, 10); index++) {
       this.fruit.push(
         new Kiwi(
-          "Kiwi",
           this.randomNumber(0, 350),
           this.randomNumber(0, this.canvas.width - 200),
-          this.randomNumber(0, this.canvas.height - 200),
-          "./assets/kiwi-sm.png"
+          this.randomNumber(0, this.canvas.height - 200)
         )
       );
     }
@@ -46,11 +44,9 @@ class Game {
     for (let index = 0; index < this.randomNumber(1, 3); index++) {
       this.fruit.push(
         new Apple(
-          "Apple",
           this.randomNumber(0, 350),
           this.randomNumber(0, this.canvas.width - 200),
           this.randomNumber(0, this.canvas.height - 200),
-          "./assets/apple-sm.png",
           4,
           5
         )
@@ -81,10 +77,8 @@ class Game {
 
     // for loop to delete an element from the fruit array if it is not alive anymore
     for (let i = 0; i < this.fruit.length; i++) {
-      if (this.fruit[i].name == "Kiwi") {
-        if (this.counter >= this.fruit[i].lifespan) {
-          this.fruit.splice(i, 1); // remove an element from the kiwi array
-        }
+      if (this.fruit[i].isDead(this.counter)) {
+        this.fruit.splice(i, 1); // remove an element from the kiwi array
       }
     }
     requestAnimationFrame(this.loop);
@@ -132,11 +126,7 @@ class Game {
         event.clientY >= fruit.yPos &&
         event.clientY <= fruit.yPos + fruit.image.height
       ) {
-        if (fruit.name == "Kiwi") {
-          this.score++;
-        } else {
-          this.score--;
-        }
+        this.score += fruit.score;
       }
     });
 
@@ -221,9 +211,8 @@ class Game {
    */
   public move() {
 
-    // refacor: only apples can move
-    const apples = this.fruit.filter(fruit => fruit.name == 'Apple');
-    apples.forEach(apple => apple.move(this.canvas));
+    // refacor: give each fruit the oppurtunity to move itself
+    this.fruit.forEach(fruit => fruit.move(this.canvas));
     
     // refactor: other option without higher order functions
     // this.fruit.forEach(fruit => {
