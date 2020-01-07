@@ -3,17 +3,9 @@ class Game {
     private readonly canvas: HTMLCanvasElement;
     private readonly ctx: CanvasRenderingContext2D;
 
-    // KeyboardListener so the player can move
-    private keyboardListener: KeyboardListener;
-
-    // Garbage items (the player needs to pick these up)
-    private garbageItems: any[]; // TODO switch to correct type
-
-    // Eggs (the player needs to leave these be)
-    private eggs: any[]; // TODO switch to correct type
-
-    // Player
-    private player: any;
+    private gameItems: GameItem[];
+    private player: Player;
+    private score: number;
 
     // Amount of frames until the next item
     private countUntilNextItem: number;
@@ -31,37 +23,36 @@ class Game {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
 
-        this.keyboardListener = new KeyboardListener();
-
-        this.garbageItems = [];
-        this.eggs = [];
+        this.gameItems = [];
 
         // Create garbage items
         for (let i = 0; i < this.randomNumber(3, 10); i++) {
-            this.garbageItems.push({
-                img: this.loadNewImage("./assets/img/icecream.png"),
-                xPos: this.randomNumber(0, this.canvas.width - 32),
-                yPos: this.randomNumber(0, this.canvas.height - 32),
-            });
+            this.gameItems.push(
+                new Garbage(
+                    this.randomNumber(0, this.canvas.width - 32),
+                    this.randomNumber(0, this.canvas.height - 32),
+                ),
+            );
         }
 
         // Create eggs
         for (let i = 0; i < this.randomNumber(1, 5); i++) {
-            this.eggs.push({
-                img: this.loadNewImage("./assets/img/egg.png"),
-                xPos: this.randomNumber(0, this.canvas.width - 50),
-                yPos: this.randomNumber(0, this.canvas.height - 64),
-            });
+            this.gameItems.push(
+                new Egg(
+                    this.randomNumber(0, this.canvas.width - 50),
+                    this.randomNumber(0, this.canvas.height - 64),
+                ),
+            );
         }
 
         // Create player
-        this.player = {
-            img: this.loadNewImage("./assets/img/character_robot_walk0.png"),
-            xPos: this.randomNumber(0, this.canvas.width - 76),
-            xVel: 3,
-            yPos: this.randomNumber(0, this.canvas.height - 92),
-            yVel: 3,
-        };
+        this.player = new Player(
+            this.randomNumber(0, this.canvas.width - 76),
+            this.randomNumber(0, this.canvas.height - 92),
+        );
+
+        // Set score to 0
+        this.score = 0;
 
         // Take about 5 seconds on a decent computer to show next item
         this.countUntilNextItem = 300;
@@ -79,38 +70,31 @@ class Game {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Move the player
-        this.movePlayer();
+        this.player.move(this.canvas);
+
+        // Player cleans up garbage
+        this.gameItems = this.gameItems.filter((element) => {
+            if (this.player.isCleaningUp(element)) {
+                if (element instanceof Egg || element instanceof Garbage) {
+                    this.score += element.getScore();
+                }
+
+                return false;
+            }
+
+            return true;
+        });
 
         // Draw everything
         this.draw();
 
-        // Player cleans up garbage
-        if (this.keyboardListener.isKeyDown(KeyboardListener.KEY_SPACE)) {
-            this.cleanUpGarbage();
-            this.pickUpEgg();
-        }
-
         // Show score
         // TODO: fix actual score system
-        this.writeTextToCanvas("Score: 0", 36, 120, 50);
+        this.writeTextToCanvas(`Score: ${this.score}`, 36, 120, 50);
 
         // Create new items if necessary
         if (this.countUntilNextItem === 0) {
-            const choice = this.randomNumber(0, 10);
-
-            if (choice < 5) {
-                this.garbageItems.push({
-                    img: this.loadNewImage("./assets/img/icecream.png"),
-                    xPos: this.randomNumber(0, this.canvas.width - 32),
-                    yPos: this.randomNumber(0, this.canvas.height - 32),
-                });
-            } else {
-                this.eggs.push({
-                    img: this.loadNewImage("./assets/img/egg.png"),
-                    xPos: this.randomNumber(0, this.canvas.width - 50),
-                    yPos: this.randomNumber(0, this.canvas.height - 64),
-                });
-            }
+            this.addNewGameItem();
 
             // Reset the timer with a count between 2 and 4 seconds on a
             // decent computer
@@ -128,103 +112,33 @@ class Game {
      * Draw all the necessary items to the screen
      */
     private draw() {
-        this.garbageItems.forEach((element) => {
-            this.ctx.drawImage(element.img, element.xPos, element.yPos);
+        this.gameItems.forEach((element) => {
+            element.draw(this.ctx);
         });
 
-        this.eggs.forEach((element) => {
-            this.ctx.drawImage(element.img, element.xPos, element.yPos);
-        });
-
-        this.ctx.drawImage(this.player.img, this.player.xPos, this.player.yPos);
+        this.player.draw(this.ctx);
     }
 
     /**
-     * Moves the player depending on which arrow key is pressed. Player is bound
-     * to the canvas and cannot move outside of it
+     * Adds a random new Garbage or Egg to the game
      */
-    private movePlayer() {
-        // Moving right
-        if (
-            this.keyboardListener.isKeyDown(KeyboardListener.KEY_RIGHT)
-            && this.player.xPos + this.player.img.width < this.canvas.width
-        ) {
-            this.player.xPos += this.player.xVel;
+    private addNewGameItem() {
+        const choice = this.randomNumber(0, 10);
+        if (choice < 5) {
+            this.gameItems.push(
+                new Garbage(
+                    this.randomNumber(0, this.canvas.width - 32),
+                    this.randomNumber(0, this.canvas.height - 32),
+                ),
+            );
+        } else {
+            this.gameItems.push(
+                new Egg(
+                    this.randomNumber(0, this.canvas.width - 50),
+                    this.randomNumber(0, this.canvas.height - 64),
+                ),
+            );
         }
-
-        // Moving left
-        if (
-            this.keyboardListener.isKeyDown(KeyboardListener.KEY_LEFT)
-            && this.player.xPos > 0
-        ) {
-            this.player.xPos -= this.player.xVel;
-        }
-
-        // Moving up
-        if (
-            this.keyboardListener.isKeyDown(KeyboardListener.KEY_UP)
-            && this.player.yPos > 0
-        ) {
-            this.player.yPos -= this.player.yVel;
-        }
-
-        // Moving down
-        if (
-            this.keyboardListener.isKeyDown(KeyboardListener.KEY_DOWN)
-            && this.player.yPos + this.player.img.height < this.canvas.height
-        ) {
-            this.player.yPos += this.player.yVel;
-        }
-    }
-
-    /**
-     * Removes garbage items from the game based on box collision detection.
-     * Note that the if statement is negative, since we use a filter.
-     * This way, the function returns an array with all the garbage items we
-     * DON'T have a collision with. And as such, it returns an array without
-     * the items we do have a collision with. This effectively leaves us with
-     * an array of garbage items that the player should still pick up.
-     *
-     * Read: https://alligator.io/js/filter-array-method/
-     */
-    private cleanUpGarbage() {
-        this.garbageItems = this.garbageItems.filter((element) => {
-            if (
-                !(
-                    this.player.xPos < element.xPos + element.img.width &&
-                    this.player.xPos + this.player.img.width > element.xPos &&
-                    this.player.yPos < element.yPos + element.img.height &&
-                    this.player.yPos + this.player.img.height > element.yPos
-                )
-            ) {
-                return element;
-            }
-        });
-    }
-
-    /**
-     * Removes eggs from the game based on box collision detection.
-     * Note that the if statement is negative, since we use a filter.
-     * This way, the function returns an array with all the eggs we
-     * DON'T have a collision with. And as such, it returns an array without
-     * the items we do have a collision with. This effectively leaves us with
-     * an array of eggs that still lie on the ground.
-     *
-     * Read: https://alligator.io/js/filter-array-method/
-     */
-    private pickUpEgg() {
-        this.eggs = this.eggs.filter((element) => {
-            if (
-                !(
-                    this.player.xPos < element.xPos + element.img.width &&
-                    this.player.xPos + this.player.img.width > element.xPos &&
-                    this.player.yPos < element.yPos + element.img.height &&
-                    this.player.yPos + this.player.img.height > element.yPos
-                )
-            ) {
-                return element;
-            }
-        });
     }
 
     /**
@@ -248,17 +162,6 @@ class Game {
         this.ctx.fillStyle = color;
         this.ctx.textAlign = alignment;
         this.ctx.fillText(text, xCoordinate, yCoordinate);
-    }
-
-    /**
-     * Method to load an image
-     * @param {HTMLImageElement} source
-     * @return HTMLImageElement - returns an image
-     */
-    private loadNewImage(source: string): HTMLImageElement {
-        const img = new Image();
-        img.src = source;
-        return img;
     }
 
     /**
