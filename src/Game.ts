@@ -245,11 +245,11 @@ class Game {
                 this.player.xPos + this.player.img.width > element.xPos &&
                 this.player.yPos < element.yPos + element.img.height &&
                 this.player.yPos + this.player.img.height > element.yPos
-        ) {
-            // Do nothing.
-        } else {
-            return element;
-        }
+            ) {
+                // Do nothing.
+            } else {
+                return element;
+            }
         });
     }
 
