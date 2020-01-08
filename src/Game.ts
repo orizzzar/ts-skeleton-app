@@ -179,24 +179,37 @@ class Game {
 
     /**
      * Removes garbage items from the game based on box collision detection.
-     * Note that the if statement is negative, since we use a filter.
-     * This way, the function returns an array with all the garbage items we
-     * DON'T have a collision with. And as such, it returns an array without
-     * the items we do have a collision with. This effectively leaves us with
-     * an array of garbage items that the player should still pick up.
      *
-     * Read: https://alligator.io/js/filter-array-method/
+     * NOTE: We use a filter command in this method. A filter is basically a
+     * for-loop that returns a new array. It does so by comparing every element
+     * of the array with a given check. In this case, that is the collision
+     * detection algorithm in the if-statement.
+     *
+     * If we have a collision, that means the players is standing on top of a
+     * garbage item and therefore, it needs to be removed from the array.
+     * The filter command does this for us, but it's a bit paradoxical since
+     * we don't do anything in the if-statement. We only return elements in the
+     * else-statement.
+     *
+     * By not returning an item we have collision with to the new array, and
+     * returning items we don't have a collision with, we effectively remove
+     * elements from the array. Try to do this as a mental exercise with only
+     * two elements in the array. You have collision with the first, but not
+     * with the second element. What does the if-statement do for the
+     * individual elements?
+     *
+     * Read for more info: https://alligator.io/js/filter-array-method/
      */
     private cleanUpGarbage() {
         this.garbageItems = this.garbageItems.filter((element) => {
             if (
-                !(
                     this.player.xPos < element.xPos + element.img.width &&
                     this.player.xPos + this.player.img.width > element.xPos &&
                     this.player.yPos < element.yPos + element.img.height &&
                     this.player.yPos + this.player.img.height > element.yPos
-                )
             ) {
+                // Do nothing.
+            } else {
                 return element;
             }
         });
@@ -204,26 +217,39 @@ class Game {
 
     /**
      * Removes eggs from the game based on box collision detection.
-     * Note that the if statement is negative, since we use a filter.
-     * This way, the function returns an array with all the eggs we
-     * DON'T have a collision with. And as such, it returns an array without
-     * the items we do have a collision with. This effectively leaves us with
-     * an array of eggs that still lie on the ground.
      *
-     * Read: https://alligator.io/js/filter-array-method/
+     * NOTE: We use a filter command in this method. A filter is basically a
+     * for-loop that returns a new array. It does so by comparing every element
+     * of the array with a given check. In this case, that is the collision
+     * detection algorithm in the if-statement.
+     *
+     * If we have a collision, that means the players is standing on top of an
+     * egg and therefore, it needs to be removed from the array.
+     * The filter command does this for us, but it's a bit paradoxical since
+     * we don't do anything in the if-statement. We only return elements in the
+     * else-statement.
+     *
+     * By not returning an egg we have collision with to the new array, and
+     * returning eggs we don't have a collision with, we effectively remove
+     * elements from the array. Try to do this as a mental exercise with only
+     * two elements in the array. You have collision with the first, but not
+     * with the second element. What does the if-statement do for the
+     * individual elements?
+     *
+     * Read for more info: https://alligator.io/js/filter-array-method/
      */
     private pickUpEgg() {
         this.eggs = this.eggs.filter((element) => {
             if (
-                !(
-                    this.player.xPos < element.xPos + element.img.width &&
-                    this.player.xPos + this.player.img.width > element.xPos &&
-                    this.player.yPos < element.yPos + element.img.height &&
-                    this.player.yPos + this.player.img.height > element.yPos
-                )
-            ) {
-                return element;
-            }
+                this.player.xPos < element.xPos + element.img.width &&
+                this.player.xPos + this.player.img.width > element.xPos &&
+                this.player.yPos < element.yPos + element.img.height &&
+                this.player.yPos + this.player.img.height > element.yPos
+        ) {
+            // Do nothing.
+        } else {
+            return element;
+        }
         });
     }
 
