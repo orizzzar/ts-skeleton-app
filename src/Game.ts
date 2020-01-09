@@ -74,7 +74,7 @@ class Game {
 
         // Player cleans up garbage
         this.gameItems = this.gameItems.filter((element) => {
-            if (this.player.isCleaningUp(element)) {
+            if (this.player.isCollidingWith(element)) {
                 if (element instanceof Egg || element instanceof Garbage) {
                     this.score += element.getScore();
                 }

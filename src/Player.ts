@@ -53,12 +53,12 @@ class Player extends GameItem {
      *
      * @param {GameItem} item - GameItem to check collision with
      */
-    public isCleaningUp(item: GameItem) {
+    public isCollidingWith(item: GameItem) {
         if (this.keyboardListener.isKeyDown(KeyboardListener.KEY_SPACE)) {
             if (
-                this.xPos < item.getXPos() + item.getImgWidth() &&
+                this.xPos < item.getXPos() + item.getImg().width &&
                 this.xPos + this.img.width > item.getXPos() &&
-                this.yPos < item.getYPos() + item.getImgHeight() &&
+                this.yPos < item.getYPos() + item.getImg().height &&
                 this.yPos + this.img.height > item.getYPos()
             ) {
                 return true;

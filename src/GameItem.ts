@@ -21,21 +21,12 @@ abstract class GameItem {
     }
 
     /**
-     * Get the height of the image
+     * Get the image
      *
-     * @returns {number} The height of the image
+     * @returns {HTMLImageElement} The height of the image
      */
-    public getImgHeight(): number {
-        return this.img.height;
-    }
-
-    /**
-     * Get the width of the image
-     *
-     * @returns {number} The width of the image
-     */
-    public getImgWidth(): number {
-        return this.img.width;
+    public getImg(): HTMLImageElement {
+        return this.img;
     }
 
     /**
