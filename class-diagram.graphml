@@ -48,9 +48,9 @@
             <y:AttributeLabel xml:space="preserve">- xVel: number
 - yVel: number
 - keyboardListener: KeyboardListener</y:AttributeLabel>
-            <y:MethodLabel xml:space="preserve">+ constructor()
+            <y:MethodLabel xml:space="preserve">+ constructor(xPos: number, yPos: number)
 + move(canvas: HTMLCanvasElement): void
-+ isColliding(item: GameItem): boolean
++ isCollidingWith(item: GameItem): boolean
 ...</y:MethodLabel>
           </y:UML>
         </y:UMLClassNode>
@@ -60,7 +60,7 @@
       <data key="d4" xml:space="preserve"/>
       <data key="d6">
         <y:UMLClassNode>
-          <y:Geometry height="200.0" width="325.0" x="197.0" y="64.0"/>
+          <y:Geometry height="187.0" width="325.0" x="197.0" y="64.0"/>
           <y:Fill color="#FFCC00" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.92626953125" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="66.86083984375" x="129.069580078125" xml:space="preserve" y="3.0">GameItem<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
@@ -70,8 +70,7 @@
 # yPos: number</y:AttributeLabel>
             <y:MethodLabel xml:space="preserve">+ constructor(imgSrc: string, xPos: number, yPos: number)
 + draw(ctx: CanvasRenderingContext2D): void
-+ getImgHeight(): number
-+ getImgWidth(): number
++ getImg: HTMLImageElement
 + getXPos(): number
 + getYPos(): number
 ...</y:MethodLabel>
