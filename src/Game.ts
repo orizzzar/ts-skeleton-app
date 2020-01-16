@@ -13,7 +13,7 @@ class Game {
     private eggs: any[]; // TODO switch to correct type
 
     // Player
-    private player: any;
+    private player: any; //TODO switch to correct type
 
     // Amount of frames until the next item
     private countUntilNextItem: number;
