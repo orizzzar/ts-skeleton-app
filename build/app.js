@@ -90,20 +90,24 @@ class Game {
     }
     cleanUpGarbage() {
         this.garbageItems = this.garbageItems.filter((element) => {
-            if (!(this.player.xPos < element.xPos + element.img.width &&
+            if (this.player.xPos < element.xPos + element.img.width &&
                 this.player.xPos + this.player.img.width > element.xPos &&
                 this.player.yPos < element.yPos + element.img.height &&
-                this.player.yPos + this.player.img.height > element.yPos)) {
+                this.player.yPos + this.player.img.height > element.yPos) {
+            }
+            else {
                 return element;
             }
         });
     }
     pickUpEgg() {
         this.eggs = this.eggs.filter((element) => {
-            if (!(this.player.xPos < element.xPos + element.img.width &&
+            if (this.player.xPos < element.xPos + element.img.width &&
                 this.player.xPos + this.player.img.width > element.xPos &&
                 this.player.yPos < element.yPos + element.img.height &&
-                this.player.yPos + this.player.img.height > element.yPos)) {
+                this.player.yPos + this.player.img.height > element.yPos) {
+            }
+            else {
                 return element;
             }
         });
