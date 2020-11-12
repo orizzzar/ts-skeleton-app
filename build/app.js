@@ -1,22 +1,20 @@
-class Animal {
-    constructor(name, legs, sound) {
-        this.name = name;
-        this.legs = legs;
-        this.sound = sound;
-    }
-    getName() {
-        return this.name;
-    }
-    getLegs() {
-        return this.legs;
-    }
-    getSound() {
-        return this.sound;
+window.addEventListener('load', init);
+let word = 'APPLE';
+const wordElement = document.getElementById('word');
+const buttonsElement = document.getElementById('buttons');
+function init(ev) {
+    createButtons();
+}
+function createButtons() {
+    const alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase();
+    for (const letter of alphabet) {
+        const newButtonElement = document.createElement('div');
+        newButtonElement.innerHTML = letter;
+        newButtonElement.classList.add('button');
+        newButtonElement.addEventListener('click', buttonClickHandler);
+        buttonsElement.append(newButtonElement);
     }
 }
-const animals = [
-    new Animal('dog', 4, 'woof'),
-    new Animal('cat', 4, 'meow')
-];
-animals.forEach((animal) => console.log('A %s has %s legs and goes %s!', animal.getName(), animal.getLegs(), animal.getSound()));
+function buttonClickHandler(event) {
+}
 //# sourceMappingURL=app.js.map

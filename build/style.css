@@ -1,0 +1,79 @@
+#game {
+    display: grid;
+    grid-template-columns:700px auto;
+    grid-template-rows: 5em auto;
+    grid-template-areas: 
+    "word hangman"
+    "buttons hangman";
+
+    font-family: monospace;
+    font-size: 25px;
+
+    
+    width: 100%;
+
+    justify-items: center;
+    align-items: flex-start;
+}
+
+#word {
+    grid-area: word;
+    display: flex;
+    align-items: center;
+
+    font-size: 1.5em;
+}
+
+.word-letter {
+    padding: 0.2em;
+    margin: 0.5em;
+    border-bottom: 0.1em solid rgb(29, 123, 167);
+    transition: all 80ms linear;
+}
+
+.word-letter:hover {
+    transform: translateY(-2px);
+}
+
+.letter-unknown {
+    opacity: 0;
+}
+
+#buttons {
+    grid-area: buttons;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.button {
+    color: rgb(139, 139, 139);
+    box-shadow: 0 0 8px -5px rgba(0, 0, 0, 0.1);
+
+    width: 3em;
+    height: 3em;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: all 80ms linear;
+}
+
+.button:hover {
+    box-shadow: 0 0 80px -5px rgba(0,0,0, 0.2);
+    color: rgb(35, 201, 212);
+    cursor: pointer;
+}
+
+/* .letter-button.correct:active {
+    background-color:rgb(29, 167, 114);
+}
+
+.letter-button.wrong:active {
+    background-color:rgb(167, 61, 29);
+} */
+
+#hangman {
+    grid-area: hangman;
+}
