@@ -1,20 +1,23 @@
-window.addEventListener('load', init);
-let word = 'APPLE';
-const wordElement = document.getElementById('word');
-const buttonsElement = document.getElementById('buttons');
-function init(ev) {
-    createButtons();
-}
-function createButtons() {
-    const alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase();
-    for (const letter of alphabet) {
-        const newButtonElement = document.createElement('div');
-        newButtonElement.innerHTML = letter;
-        newButtonElement.classList.add('button');
-        newButtonElement.addEventListener('click', buttonClickHandler);
-        buttonsElement.append(newButtonElement);
+class Ticker {
+    constructor(stepFunction, interval = 1000) {
+        this.stepFunction = stepFunction;
+        this.interval = interval;
     }
-}
-function buttonClickHandler(event) {
+    isRunning() {
+        return this.timerId != null;
+    }
+    toggle() {
+        if (this.isRunning()) {
+            clearInterval(this.timerId);
+            this.timerId = null;
+        }
+        else {
+            this.timerId = setInterval(() => {
+                if (this.stepFunction) {
+                    this.stepFunction();
+                }
+            }, this.interval);
+        }
+    }
 }
 //# sourceMappingURL=app.js.map
