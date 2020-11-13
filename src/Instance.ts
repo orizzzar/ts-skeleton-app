@@ -1,17 +1,23 @@
+interface InstanceCoords {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
 
 class Instance {
-    private x: number;
-    private y: number;
-    private w: number;
-    private h: number;
-    private sprite: String; // Change to SpriteType type
+    private coords: InstanceCoords;
 
     private storage: InstanceStorage;
     private storageKey: Symbol;
 
+    private drawer: Drawer;
+    private sprite: DrawSpriteType = null; // Change to SpriteType type
+
     private ticksPassed = 0;
 
-    public constructor(x: number, y: number, w: number, h: number, priority: number, storage: InstanceStorage) {
+    public constructor(coords: InstanceCoords, priority: number, storage: InstanceStorage) {
+        this.coords = coords;
         this.storage = storage;
         this.storageKey = this.storage.add(this, priority);
     }
@@ -33,7 +39,7 @@ class Instance {
     }
 
     public draw() {
-
+        this.drawer.draw(this.coords, this.sprite);
     }
 
 
